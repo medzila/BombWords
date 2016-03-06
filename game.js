@@ -65,6 +65,7 @@ function mainloop(){
         missiles[index].draw(ctx);
         missiles[index].move();
     }
+    ctxT.fillText(motTapee,pos, 68);
     requestAnimationFrame(mainloop);
 }
 
@@ -82,7 +83,6 @@ function toucheRelachee(evt){
         ctxT.clearRect(0,0,wT,hT);
     }else{
         car = String.fromCharCode(evt.keyCode);
-        ctxT.fillText(car,pos, 68);
         motTapee+=car;
     }
 }
