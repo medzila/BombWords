@@ -11,7 +11,7 @@ var mots = ["BONJOUR","AUREVOIR","MERCI","MOMO"];
 var motTapee="";
 var currentTarget = null;
 var missiles = [];
-
+var bullets = [];
 
 window.onload = function(){
     init();
@@ -56,11 +56,51 @@ function missile() {
     };
     this.draw = function(ctx){
         ctx.save();
+	ctx.translate(this.x, this.y);
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x,this.y,12*this.motMissile.length,20);
+        ctx.fillRect(0,0,12*this.motMissile.length,20);
         ctx.font = "15px Calibri,Geneva,Arial";
         ctx.fillStyle = "white";
-        ctx.fillText(this.remainingLetters, this.x,this.y+15);
+        ctx.fillText(this.remainingLetters,0,15);
+        ctx.restore();
+    };
+}
+
+
+
+function bullet(target){
+    this.x = w/2;
+    this.y = h;
+    this.target = target;
+    this.color = 'red';
+    this.speed = 5;
+    this.dead = false;
+    this.move = function(){
+	var dist = distanceBetweenTwoPoints(this.x, this.y, this.target.x, this.target.y);
+	if(dist <= 10 || !this.target || this.target.isDestroyed){
+	    this.dead = true;
+	}else{
+	    var angle = angleBetweenTwoPoints(this.target.x, this.target.y, this.x, this.y);
+	    
+	    this.x += Math.cos(angle) * this.speed ;
+	    this.y += Math.sin(angle) * this.speed;
+	    
+	    //console.log("Apres:"+this.x+";"+this.y);
+	    //console.log("==========================");
+	}
+    };
+    this.draw = function(ctx){
+        ctx.save();
+
+	ctx.translate(this.x, this.y);
+	ctx.beginPath();
+	ctx.arc(0, 0, 5, 0, 2 * Math.PI, false);
+	ctx.fillStyle = this.color;
+	ctx.fill();
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = '#003300';
+	ctx.stroke();
+      
         ctx.restore();
     };
 }
@@ -69,6 +109,8 @@ function mainloop(){
     ctx.clearRect(0, 0, w, h);
     
     updateMissiles();
+    
+    updateBullets();
     
     ctxT.fillText(motTapee,pos, 68);
     requestAnimationFrame(mainloop);
@@ -84,19 +126,31 @@ function toucheAppuyee(evt){
     
 }
 
+function updateBullets(){
+    for(i=0; i < bullets.length; i++){
+        if(bullets[i].dead){
+            bullets.splice(i--,1);
+        }
+	else{
+	    bullets[i].move();
+	    bullets[i].draw(ctx);
+	}
+    }
+}
 function updateMissiles(){
-    missiles.forEach(function(m, index, obj){
+    for(i = 0; i< missiles.length; i++){
+	var m = missiles[i];
         if(m.isDestroyed){
 	    if(m == currentTarget){
 		currentTarget = null;
 	    }
-	    missiles.splice(index, 1);
+	    missiles.splice(i--, 1);
 	}
         else{
 	    m.draw(ctx);
 	    m.move();
 	}
-    });
+    }
 }
 
 function toucheRelachee(evt){
@@ -129,6 +183,7 @@ function checkFirstLetterOfCurrentTarget(letter){
     if(currentTarget != null){
 	var currLett = currentTarget.remainingLetters;
 	if(currentTarget != "" && currLett.charAt(0) == letter){
+		bullets.push(new bullet(currentTarget));
 		currentTarget.remainingLetters = currLett.substring(1);
 		if(currentTarget.remainingLetters == ""){
 			currentTarget.isDestroyed = true;
