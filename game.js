@@ -13,18 +13,20 @@ var currentTarget = null;
 var missiles = [];
 var bullets = [];
 
-var SPRITESHEET_URL = "http://i296.photobucket.com/albums/mm182/CodeH4x0r/explosion17.png";
-var SPRITE_WIDTH = 64;
-var SPRITE_HEIGHT = 64;
+var SPRITESHEET_URL = "image/explosions.png";
+var SPRITE_WIDTH = 900/9;
+var SPRITE_HEIGHT = 900/9;
 var NB_POSTURES=1;
-var NB_FRAMES_PER_POSTURE = 25;
-var explosion;
+var NB_FRAMES_PER_POSTURE = 73;
 var posX;
 var posY;
 
 var spritesheet;
 
 var missilesExplosion = [];
+
+var dico;
+
 
 
 window.onload = function(){
@@ -53,7 +55,10 @@ function init(){
     
 
     pos = 10;
-        
+    
+    readTextFile("words.txt");
+    
+    
     requestAnimationFrame(mainloop);
     document.addEventListener('keydown',toucheAppuyee,false);
     document.addEventListener('keyup',toucheRelachee,false);
