@@ -13,6 +13,20 @@ var currentTarget = null;
 var missiles = [];
 var bullets = [];
 
+var SPRITESHEET_URL = "http://i296.photobucket.com/albums/mm182/CodeH4x0r/explosion17.png";
+var SPRITE_WIDTH = 64;
+var SPRITE_HEIGHT = 64;
+var NB_POSTURES=1;
+var NB_FRAMES_PER_POSTURE = 25;
+var explosion;
+var posX;
+var posY;
+
+var spritesheet;
+
+var missilesExplosion = [];
+
+
 window.onload = function(){
     init();
 };
@@ -28,7 +42,16 @@ function init(){
     wT = canvasT.width;
     hT = canvasT.height;
     ctxT = canvasT.getContext('2d');
+    // load the spritesheet
     
+    //Image de l'explosion d'un missile
+    spritesheet = new Image();
+    spritesheet.src = SPRITESHEET_URL;
+    spritesheet.onload = function() {
+      requestAnimationFrame(updateExplosion);
+    }; // onload
+    
+
     pos = 10;
         
     requestAnimationFrame(mainloop);
@@ -38,6 +61,21 @@ function init(){
 
     
 };
+
+/**
+ * Objet sprite permettant le dessin de l'explosion.
+ * @param {type} x positon x de l'explosion
+ * @param {type} y position y de l'explosion
+ */
+function explosions(x,y) {
+    this.explode = new Sprite();
+    this.explode.extractSprites(spritesheet, NB_POSTURES, 
+                                NB_FRAMES_PER_POSTURE, 
+                                SPRITE_WIDTH, SPRITE_HEIGHT);
+    this.explode.setNbImagesPerSecond(60);
+    this.posExplodeX=x;
+    this.posExplodeY=y;
+}
 
 function missile() {
     this.x=Math.random()*w;
@@ -91,7 +129,6 @@ function bullet(target){
     };
     this.draw = function(ctx){
         ctx.save();
-
 	ctx.translate(this.x, this.y);
 	ctx.beginPath();
 	ctx.arc(0, 0, 5, 0, 2 * Math.PI, false);
@@ -100,7 +137,6 @@ function bullet(target){
 	ctx.lineWidth = 2;
 	ctx.strokeStyle = '#003300';
 	ctx.stroke();
-      
         ctx.restore();
     };
 }
@@ -112,6 +148,8 @@ function mainloop(){
     
     updateBullets();
     
+    updateExplosion();
+ 
     ctxT.fillText(motTapee,pos, 68);
     requestAnimationFrame(mainloop);
 }
@@ -120,7 +158,7 @@ function toucheAppuyee(evt){
     //console.log("touche appuyee code=" + evt.keyCode);
     ctxT.font = "68px Calibri,Geneva,Arial";
     ctxT.fillStyle = "black";
-    if(evt.keyCode == 8 || evt.keyCode == 46){ // Empeche d'aller a la page precedente avec la touche retour
+    if(evt.keyCode === 8 || evt.keyCode === 46){ // Empeche d'aller a la page precedente avec la touche retour
 	evt.preventDefault();
     };
     
@@ -141,15 +179,31 @@ function updateMissiles(){
     for(i = 0; i< missiles.length; i++){
 	var m = missiles[i];
         if(m.isDestroyed){
-	    if(m == currentTarget){
+	    if(m === currentTarget){
 		currentTarget = null;
 	    }
-	    missiles.splice(i--, 1);
+            posX = m.x;
+            posY = m.y;
+            missiles.splice(i--, 1);
+            missilesExplosion.push(new explosions(posX,posY)); // Ajout d'un objet sprite pour l'explosion du missile.
 	}
         else{
 	    m.draw(ctx);
 	    m.move();
 	}
+    }
+}
+
+/**
+ * Dessine l'explosion d'un missile
+ */
+function updateExplosion(){
+    for(var i = 0; i<missilesExplosion.length;i++){
+        if(missilesExplosion[i].explode.currentFrame<missilesExplosion[i].explode.spriteArray.length-1){ // Pour que l'explosion prenne fin.
+           missilesExplosion[i].explode.draw(ctx,missilesExplosion[i].posExplodeX,missilesExplosion[i].posExplodeY,1); 
+        }else{
+            missilesExplosion.splice(i--, 1);
+        }
     }
 }
 
@@ -165,8 +219,8 @@ function toucheRelachee(evt){
         motTapee+=car;
     }*/
     car = String.fromCharCode(evt.keyCode);
-    console.log(car);
-    if(currentTarget == null){
+    //console.log(car);
+    if(currentTarget === null){
 	findMissileToDestroy(car);
 	checkFirstLetterOfCurrentTarget(car);
     }else{
@@ -180,12 +234,12 @@ function lancementMissile(){
 
 /* On regarde si la lettre tapee est bien la premiere*/
 function checkFirstLetterOfCurrentTarget(letter){
-    if(currentTarget != null){
+    if(currentTarget !== null){
 	var currLett = currentTarget.remainingLetters;
-	if(currentTarget != "" && currLett.charAt(0) == letter){
+	if(currentTarget !== "" && currLett.charAt(0) === letter){
 		bullets.push(new bullet(currentTarget));
 		currentTarget.remainingLetters = currLett.substring(1);
-		if(currentTarget.remainingLetters == ""){
+		if(currentTarget.remainingLetters === ""){
 			currentTarget.isDestroyed = true;
 			currentTarget = null;
 		}
@@ -196,7 +250,7 @@ function checkFirstLetterOfCurrentTarget(letter){
 /* On trouve la prochaine cible */
 function findMissileToDestroy(letter){
     missiles.some(function(m, index) {
-	if(m.motMissile.charAt(0) == letter){
+	if(m.motMissile.charAt(0) === letter){
 	     currentTarget = m;
 	     currentTarget.color = 'red';
 	     return true;

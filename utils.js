@@ -3,7 +3,7 @@
  */
  
  function distanceBetweenTwoPoints(x1, y1, x2, y2){
-	 console.log("Apl fctn: dist");
+	//console.log("Apl fctn: dist");
 	var a = x1 - x2;
 	var b = y1 - y2;
 	
