@@ -6,7 +6,8 @@
 
 var canvas, ctx, w, h; 
 var canvasT , ctxT, wT, hT;
-var pos,index,ind;
+var canvasW , ctxW, wW, hW;
+var pos,index,ind,posY;
 var mots = ["BONJOUR","AUREVOIR","MERCI","MOMO"];
 var motTapee="";
 var currentTarget = null;
@@ -26,7 +27,7 @@ var spritesheet;
 var missilesExplosion = [];
 
 var dico;
-
+var wordsToWrite = [];
 
 
 window.onload = function(){
@@ -44,6 +45,11 @@ function init(){
     wT = canvasT.width;
     hT = canvasT.height;
     ctxT = canvasT.getContext('2d');
+    
+    canvasW = document.getElementById("canvasWords");
+    wW = canvasW.width;
+    hW = canvasW.height;
+    ctxW = canvasW.getContext('2d');
     // load the spritesheet
     
     //Image de l'explosion d'un missile
@@ -55,9 +61,16 @@ function init(){
     
 
     pos = 10;
+    posY = 20;
     
-    readTextFile("words.txt");
+    dico = readTextFile("words.txt");
+    selectWordsToWrite(dico,wordsToWrite);
     
+    writeWordsCanvas();
+    
+    /*for(var k =0;k<wordsToWrite.length;k++){
+        console.log(wordsToWrite[k]);
+    }*/
     
     requestAnimationFrame(mainloop);
     document.addEventListener('keydown',toucheAppuyee,false);
@@ -154,9 +167,21 @@ function mainloop(){
     updateBullets();
     
     updateExplosion();
- 
-    ctxT.fillText(motTapee,pos, 68);
+    
+    //ctxT.fillText(motTapee,pos, 68);
     requestAnimationFrame(mainloop);
+}
+
+function writeWordsCanvas(){
+    ctxW.font = "15px Calibri,Geneva,Arial";
+    for(var i = 0;i<wordsToWrite.length;i++){
+       ctxW.fillText(wordsToWrite[i],pos,posY);
+       pos+= 10*wordsToWrite[i].length;
+       if(pos+wordsToWrite.length*10 > wW){
+           pos = 10;
+           posY+=20;
+       }
+    }
 }
 
 function toucheAppuyee(evt){

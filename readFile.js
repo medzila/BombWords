@@ -8,10 +8,12 @@
  * Lecture du fichier words + ecriture dans le tableau
  * dictionaryWords de tous les mots.
  */
+
 function readTextFile(file)
 {
     var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file, true);
+    var tab;
+    rawFile.open("GET", file, false);
     rawFile.onreadystatechange = function ()
     {
         if(rawFile.readyState === 4)
@@ -19,9 +21,10 @@ function readTextFile(file)
             if(rawFile.status === 200 || rawFile.status === 0)
             {
                 var allText = rawFile.responseText;
-                dico = allText.split("\n");
+                tab = allText.split("\n");
             }
         }
     };
     rawFile.send(null);
+    return tab;
 }

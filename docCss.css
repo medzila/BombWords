@@ -11,3 +11,11 @@ and open the template in the editor.
 canvas {
     border: 1px solid black;
 }
+
+#canvasGame{
+    background-color: grey;
+}
+
+#canvasWords{
+    
+}
