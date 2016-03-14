@@ -79,3 +79,19 @@ function Sprite() {
     this.delayBetweenFrames = 1000 / nb;
   };
 }
+
+function loadSprites(){
+	//Image de l'explosion d'un missile
+    spritesheet = new Image();
+    spritesheet.src = SPRITESHEET_URL;
+    spritesheet.onload = function() {
+      requestAnimationFrame(updateExplosion);
+    }; // onload
+    
+	//Image de l'explosion d'un missile
+    spritesheet_missile = new Image();
+    spritesheet_missile.src = SPRITESHEET_MISSILES_URL;
+    //spritesheet_missile.onload = function() {
+      //requestAnimationFrame(updateMissile);
+    //}; // onload
+}

@@ -31,6 +31,13 @@ var missiles = [];
 var missilesToEnemy = [];
 var bullets = [];
 
+var SPRITESHEET_MISSILES_URL = "image/sprite_sheet_missiles.png";
+var SPRITE_MISSILES_WIDTH = 32;
+var SPRITE_MISSILES_HEIGHT = 132;
+
+var NB_POSTURES_MISSILES=1;
+var NB_FRAMES_PER_POSTURE_MISSILES = 25;
+
 var SPRITESHEET_URL = "image/explosions.png";
 var SPRITE_WIDTH = 900/9;
 var SPRITE_HEIGHT = 900/9;
@@ -69,13 +76,8 @@ function init(){
     ctxW = canvasW.getContext('2d');
     // load the spritesheet
     
-    //Image de l'explosion d'un missile
-    spritesheet = new Image();
-    spritesheet.src = SPRITESHEET_URL;
-    spritesheet.onload = function() {
-      requestAnimationFrame(updateExplosion);
-    }; // onload
-    
+    loadSprites();
+	
     
     dico = readTextFile("words.txt");
     selectWordsToWrite(dico,wordsToWrite);
@@ -110,6 +112,8 @@ function explosions(x,y) {
     this.posExplodeX=x;
     this.posExplodeY=y;
 }
+
+
 function missileToEnemy(word){
     this.x=Math.random()*w;
     this.y=h;
@@ -127,7 +131,7 @@ function missileToEnemy(word){
     };
     this.draw = function(ctx){
         ctx.save();
-    ctx.translate(this.x, this.y);
+		ctx.translate(this.x, this.y);
         ctx.fillStyle = this.color;
         ctx.fillRect(0,0,12*this.motMissile.length,20);
         ctx.font = "15px Calibri,Geneva,Arial";
@@ -146,6 +150,9 @@ function missile() {
     this.motMissile = mots[this.rand];
     this.remainingLetters = this.motMissile;
     this.isDestroyed = false;
+	this.sprite = new Sprite();
+	this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
+	this.sprite.setNbImagesPerSecond(60);
     this.move = function(){
         this.y+=this.speed;
 	if(this.y >= h){
@@ -154,12 +161,15 @@ function missile() {
     };
     this.draw = function(ctx){
         ctx.save();
-	ctx.translate(this.x, this.y);
+		ctx.translate(this.x, this.y);
+		//console.log("la");
         ctx.fillStyle = this.color;
         ctx.fillRect(0,0,12*this.motMissile.length,20);
         ctx.font = "15px Calibri,Geneva,Arial";
         ctx.fillStyle = "white";
         ctx.fillText(this.remainingLetters,0,15);
+		ctx.rotate(180*Math.PI/180);
+		this.sprite.draw(ctx, -50, 0);
         ctx.restore();
     };
 }
