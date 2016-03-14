@@ -69,8 +69,6 @@ function init(){
     canvas.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
     canvasW.addEventListener('keyup', writeOnCanvasW, false);
-
-    
 };
 
 function mainloop(){
@@ -118,16 +116,6 @@ function toucheAppuyee(evt){
 }
 
 function toucheRelachee(evt){
-    //ctxT.clearRect(0,0,wT,hT);
-    /*if(evt.keyCode===13){
-        testMotEcrit();
-        motTapee="";
-        ctxT.clearRect(0,0,wT,hT);
-    }else{
-        car = String.fromCharCode(evt.keyCode);
-	lastLetter = car;
-        motTapee+=car;
-    }*/
     car = String.fromCharCode(evt.keyCode);
     //console.log(car);
     if(currentTarget === null){
@@ -186,7 +174,8 @@ function checkFirstLetterOfCurrentTarget(letter){
 		bullets.push(new bullet(currentTarget));
 		currentTarget.remainingLetters = currLett.substring(1);
 		if(currentTarget.remainingLetters === ""){
-			currentTarget.isDestroyed = true;
+			//currentTarget.isDestroyed = true;
+			currentTarget.color = "grey";
 			currentTarget = null;
 		}
 	}
@@ -244,7 +233,7 @@ function updateMissiles(){
             posX = m.x;
             posY = m.y;
             missiles.splice(i--, 1);
-            missilesExplosion.push(new explosions(posX,posY)); // Ajout d'un objet sprite pour l'explosion du missile.
+            missilesExplosion.push(new explosions(posX,posY - 50)); // Ajout d'un objet sprite pour l'explosion du missile.
 	}
         else{
 	    m.draw(ctx);
@@ -325,6 +314,7 @@ function missile(posX,word) {
     this.motMissile = word;
     this.remainingLetters = this.motMissile;
     this.isDestroyed = false;
+	this.alreadyHit = this.motMissile.length;
     this.sprite = new Sprite();
     this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
     this.sprite.setNbImagesPerSecond(60);
@@ -387,8 +377,12 @@ function bullet(target){
     this.dead = false;
     this.move = function(){
 	var dist = distanceBetweenTwoPoints(this.x, this.y, this.target.x, this.target.y);
-	if(dist <= 10 || !this.target || this.target.isDestroyed){
+	if(dist <= 10){
 	    this.dead = true;
+		this.target.alreadyHit --;
+		if(this.target.alreadyHit <= 0){
+			this.target.isDestroyed = true;
+		}
 	}else{
 	    var angle = angleBetweenTwoPoints(this.target.x, this.target.y, this.x, this.y);
 	    
