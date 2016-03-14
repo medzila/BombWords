@@ -12,7 +12,7 @@ canvas {
     border: 1px solid black;
 }
 
-#canvasGame{
+.backgroundCity{
     background: url("./image/city_background.jpg");
     background-size: 100% 100%;
 }

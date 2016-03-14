@@ -223,7 +223,7 @@ function updateBullets(){
     }
 }
 
-function updateMissiles(){
+/*function updateMissiles(){
     for(i = 0; i< missiles.length; i++){
 	var m = missiles[i];
         if(m.isDestroyed){
@@ -233,14 +233,14 @@ function updateMissiles(){
             posX = m.x;
             posY = m.y;
             missiles.splice(i--, 1);
-            missilesExplosion.push(new explosions(posX,posY - 50)); // Ajout d'un objet sprite pour l'explosion du missile.
+            missilesExplosion.push(new explosions(posX,posY - 100)); // Ajout d'un objet sprite pour l'explosion du missile.
 	}
         else{
 	    m.draw(ctx);
 	    m.move();
 	}
     }
-}
+}*/
 
 function updateMissilesToEnemy(){
     for(i = 0; i<missilesToEnemy.length; i++){
@@ -290,7 +290,7 @@ function drawAllPlayers() {
                 posX = m.x;
                 posY = m.y;
                 allPlayers[name].splice(i--, 1);
-                missilesExplosion.push(new explosions(posX,posY)); // Ajout d'un objet sprite pour l'explosion du missile.
+                missilesExplosion.push(new explosions(posX,posY-50)); // Ajout d'un objet sprite pour l'explosion du missile.
             }else{
                 m.draw(ctx);
                 m.move();
@@ -309,7 +309,7 @@ function missile(posX,word) {
     this.x=posX;
     this.y=0;
     this.color='blue';
-    this.speed=0.5;
+    this.speed=2;
     this.rand = Math.floor(Math.random() * 4);
     this.motMissile = word;
     this.remainingLetters = this.motMissile;
@@ -343,7 +343,7 @@ function missileToEnemy(posX,word){
     this.x=posX;
     this.y=h; //h
     this.color='orange';
-    this.speed=0.5;
+    this.speed=2;
     //this.rand = Math.floor(Math.random() * 4);
     this.motMissile = word;
     this.remainingLetters = this.motMissile;
