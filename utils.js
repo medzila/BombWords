@@ -20,20 +20,10 @@ function angleBetweenTwoPoints(x1, y1, x2, y2){
 	y[i] = yin - sin(angle) * segLength;*/
 }
 
-function selectWordsToWrite(tab1,tab2){
-    var wordsNb;
-    var firstLetter;
-    while(tab2.length < 10){
-        wordsNb = Math.floor(Math.random() * tab1.length);
-        firstLetter = true;
-        for(var i = 0;i<tab2.length;i++){
-            if(tab1[wordsNb][0].toUpperCase() === tab2[i][0].toUpperCase()){
-                firstLetter = false;
-                break;
-            }
-        }
-        if(firstLetter){
-            tab2.push(tab1[wordsNb]);
-        }
+function selectWordsToWrite(tab){
+    var rand = Math.floor(Math.random() * 10)+2;
+    while(tab.length < 10){
+        wordsToWrite.push(WORDS[rand][Math.floor(Math.random()*WORDS[rand].length)]);
+        rand = Math.floor(Math.random() * 10)+2;
     }
 }

@@ -1,9 +1,3 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 WORDS = {
         2: ['am', 'an', 'as', 'at', 'be', 'by', 'cs', 'do', 'go', 'he', 'if', 'in', 'is', 'it', 'me', 'my', 'no', 'of', 'oh', 'on', 'or', 'pi', 're', 'so', 'to', 'up', 'us', 'we'],
         3: ['act', 'add', 'age', 'ago', 'aid', 'aim', 'air', 'all', 'and', 'any', 'are', 'arm', 'art', 'ask', 'ate', 'bad', 'ban', 'bar', 'bed', 'bet', 'bid', 'big', 'bit', 'box', 'boy', 'bug', 'bus', 'but', 'buy', 'can', 'car', 'cat', 'cry', 'cup', 'cut', 'day', 'did', 'die', 'doe', 'dog', 'dry', 'due', 'eat', 'end', 'err', 'eye', 'fan', 'far', 'fed', 'few', 'fit', 'fix', 'fly', 'for', 'fry', 'fun', 'gap', 'gas', 'get', 'got', 'gun', 'guy', 'had', 'has', 'hat', 'her', 'hid', 'him', 'his', 'hit', 'hot', 'how', 'ice', 'ill', 'its', 'job', 'joy', 'key', 'kid', 'law', 'lay', 'led', 'leg', 'let', 'lie', 'log', 'lot', 'low', 'mad', 'man', 'map', 'may', 'men', 'met', 'mix', 'mod', 'net', 'new', 'nor', 'not', 'now', 'odd', 'off', 'oil', 'old', 'one', 'our', 'out', 'owe', 'own', 'pay', 'pen', 'per', 'pop', 'put', 'ran', 'raw', 'red', 'rid', 'row', 'run', 'sad', 'sat', 'saw', 'say', 'see', 'set', 'sex', 'she', 'sit', 'six', 'son', 'sum', 'sun', 'tax', 'tea', 'ten', 'the', 'tie', 'tin', 'too', 'top', 'try', 'two', 'use', 'van', 'via', 'war', 'was', 'way', 'who', 'why', 'win', 'won', 'yes', 'yet', 'you'],
@@ -18,12 +12,17 @@ WORDS = {
         12: ['accidentally', 'alternatives', 'announcement', 'applications', 'appreciating', 'arrangements', 'broadcasting', 'calculations', 'circumstance', 'combinations', 'complicating', 'consequences', 'consequently', 'considerable', 'considerably', 'continuation', 'continuously', 'contribution', 'conventional', 'conversation', 'deliberately', 'descriptions', 'difficulties', 'disadvantage', 'disappearing', 'discouraging', 'distributing', 'distribution', 'embarrassing', 'encountering', 'establishing', 'experiencing', 'experimental', 'guaranteeing', 'implementing', 'implications', 'improvements', 'incidentally', 'incompatible', 'inconsistent', 'individually', 'institutions', 'instructions', 'intelligence', 'interpreting', 'intervention', 'introduction', 'manipulation', 'mathematical', 'nevertheless', 'occasionally', 'particularly', 'professional', 'recommending', 'relationship', 'representing', 'requirements', 'respectively', 'significance', 'simultaneous', 'sophisticate', 'specifically', 'successfully', 'sufficiently', 'transferring', 'unacceptable', 'universities', 'unreasonable']
     };
 
+//Partie serveur
+var missileSend;
+var bulletSend;
+// Autres joueurs
+var allPlayers = {};
+
+
 var canvas, ctx, w, h; 
 var canvasT , ctxT, wT, hT;
 var canvasW , ctxW, wW, hW;
 var pos,index,ind,posY;
-var mots = ["BONJOUR","AUREVOIR","MERCI","MOMO"];
-var motTapee="";
 var currentTarget = null;
 var currentLetters = null;
 var currentWord = null;
@@ -50,7 +49,6 @@ var spritesheet;
 
 var missilesExplosion = [];
 
-var dico;
 var wordsToWrite = [];
 
 
@@ -77,154 +75,35 @@ function init(){
     // load the spritesheet
     
     loadSprites();
-	
     
-    dico = readTextFile("words.txt");
-    selectWordsToWrite(dico,wordsToWrite);
-    
+    selectWordsToWrite(wordsToWrite);
     writeWordsCanvas();
-    
-    /*for(var k =0;k<wordsToWrite.length;k++){
-        console.log(wordsToWrite[k]);
-    }*/
     
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
-    canvas.addEventListener('click',lancementMissile,false);
-
     canvasW.addEventListener('keyup', writeOnCanvasW, false);
 
     
 };
 
-/**
- * Objet sprite permettant le dessin de l'explosion.
- * @param {type} x positon x de l'explosion
- * @param {type} y position y de l'explosion
- */
-function explosions(x,y) {
-    this.explode = new Sprite();
-    this.explode.extractSprites(spritesheet, NB_POSTURES, 
-                                NB_FRAMES_PER_POSTURE, 
-                                SPRITE_WIDTH, SPRITE_HEIGHT);
-    this.explode.setNbImagesPerSecond(60);
-    this.posExplodeX=x;
-    this.posExplodeY=y;
-}
-
-
-function missileToEnemy(word){
-    this.x=Math.random()*w;
-    this.y=h;
-    this.color='orange';
-    this.speed=0.5;
-    //this.rand = Math.floor(Math.random() * 4);
-    this.motMissile = word;
-    this.remainingLetters = this.motMissile;
-    this.isDestroyed = false;
-    this.move = function(){
-        this.y-=this.speed;
-    if(this.y <= 0){
-        this.isDestroyed = true;
-    }
-    };
-    this.draw = function(ctx){
-        ctx.save();
-		ctx.translate(this.x, this.y);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(0,0,12*this.motMissile.length,20);
-        ctx.font = "15px Calibri,Geneva,Arial";
-        ctx.fillStyle = "white";
-        ctx.fillText(this.remainingLetters,0,15);
-        ctx.restore();
-    };
-}
-
-function missile() {
-    this.x=Math.random()*w;
-    this.y=0;
-    this.color='blue';
-    this.speed=0.5;
-    this.rand = Math.floor(Math.random() * 4);
-    this.motMissile = mots[this.rand];
-    this.remainingLetters = this.motMissile;
-    this.isDestroyed = false;
-	this.sprite = new Sprite();
-	this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
-	this.sprite.setNbImagesPerSecond(60);
-    this.move = function(){
-        this.y+=this.speed;
-	if(this.y >= h){
-	    this.isDestroyed = true;
-	}
-    };
-    this.draw = function(ctx){
-        ctx.save();
-		ctx.translate(this.x, this.y);
-		//console.log("la");
-        ctx.fillStyle = this.color;
-        ctx.fillRect(0,0,12*this.motMissile.length,20);
-        ctx.font = "15px Calibri,Geneva,Arial";
-        ctx.fillStyle = "white";
-        ctx.fillText(this.remainingLetters,0,15);
-		ctx.rotate(180*Math.PI/180);
-		this.sprite.draw(ctx, -50, 0);
-        ctx.restore();
-    };
-}
-
-
-
-function bullet(target){
-    this.x = w/2;
-    this.y = h;
-    this.target = target;
-    this.color = 'red';
-    this.speed = 5;
-    this.dead = false;
-    this.move = function(){
-	var dist = distanceBetweenTwoPoints(this.x, this.y, this.target.x, this.target.y);
-	if(dist <= 10 || !this.target || this.target.isDestroyed){
-	    this.dead = true;
-	}else{
-	    var angle = angleBetweenTwoPoints(this.target.x, this.target.y, this.x, this.y);
-	    
-	    this.x += Math.cos(angle) * this.speed ;
-	    this.y += Math.sin(angle) * this.speed;
-	    
-	    //console.log("Apres:"+this.x+";"+this.y);
-	    //console.log("==========================");
-	}
-    };
-    this.draw = function(ctx){
-        ctx.save();
-	ctx.translate(this.x, this.y);
-	ctx.beginPath();
-	ctx.arc(0, 0, 5, 0, 2 * Math.PI, false);
-	ctx.fillStyle = this.color;
-	ctx.fill();
-	ctx.lineWidth = 2;
-	ctx.strokeStyle = '#003300';
-	ctx.stroke();
-        ctx.restore();
-    };
-}
-
 function mainloop(){
     ctx.clearRect(0, 0, w, h);
-    
-    updateMissiles();
-    
+        
     updateMissilesToEnemy();
 
     updateBullets();
     
     updateExplosion();
+        
+    drawAllPlayers();
     
-    //ctxT.fillText(motTapee,pos, 68);
     requestAnimationFrame(mainloop);
 }
+
+////////////////////////////////////////////
+//              Evenements               //
+///////////////////////////////////////////
 
 function writeWordsCanvas(){
     ctxW.font = "15px Calibri,Geneva,Arial";
@@ -250,61 +129,6 @@ function toucheAppuyee(evt){
 	evt.preventDefault();
     };
     
-}
-
-function updateBullets(){
-    for(i=0; i < bullets.length; i++){
-        if(bullets[i].dead){
-            bullets.splice(i--,1);
-        }
-	else{
-	    bullets[i].move();
-	    bullets[i].draw(ctx);
-	}
-    }
-}
-function updateMissiles(){
-    for(i = 0; i< missiles.length; i++){
-	var m = missiles[i];
-        if(m.isDestroyed){
-	    if(m === currentTarget){
-		currentTarget = null;
-	    }
-            posX = m.x;
-            posY = m.y;
-            missiles.splice(i--, 1);
-            missilesExplosion.push(new explosions(posX,posY)); // Ajout d'un objet sprite pour l'explosion du missile.
-	}
-        else{
-	    m.draw(ctx);
-	    m.move();
-	}
-    }
-}
-
-function updateMissilesToEnemy(){
-    for(i = 0; i<missilesToEnemy.length; i++){
-        var m = missilesToEnemy[i];
-
-        if(m.isDestroyed){
-            missilesToEnemy.splice(i--, 1);
-        }else{
-            m.draw(ctx);
-            m.move();
-        }
-    }
-}
-/**
- * Dessine l'explosion d'un missile
- */
-function updateExplosion(){
-    for(var i = 0; i<missilesExplosion.length;i++){
-        if(missilesExplosion[i].explode.currentFrame<missilesExplosion[i].explode.spriteArray.length-1){ // Pour que l'explosion prenne fin.
-           missilesExplosion[i].explode.draw(ctx,missilesExplosion[i].posExplodeX,missilesExplosion[i].posExplodeY,1); 
-        }else{
-            missilesExplosion.splice(i--, 1);
-        }
-    }
 }
 
 function toucheRelachee(evt){
@@ -351,21 +175,28 @@ function writeOnCanvasW(evt){
         writeWordsCanvas();
     }
 
-    console.log(car+", "+currentLetters);
+    //console.log(car+", "+currentLetters);
 }
 
+////////////////////////////////////////////
+//          Lancement Missiles           //
+///////////////////////////////////////////
+
 function launchMissile(word){
-    missilesToEnemy.push(new missileToEnemy(word));
+    missileSend = new missileToEnemy(Math.random()*w,word);
+    missilesToEnemy.push(missileSend);
 }
-function lancementMissile(){
-    missiles.push(new missile(null));
-}
+
+////////////////////////////////////////////
+//          Recherche mot Cible           //
+///////////////////////////////////////////
+
 
 /* On regarde si la lettre tapee est bien la premiere*/
 function checkFirstLetterOfCurrentTarget(letter){
     if(currentTarget !== null){
 	var currLett = currentTarget.remainingLetters;
-	if(currentTarget !== "" && currLett.charAt(0) === letter){
+	if(currentTarget !== "" && currLett.charAt(0) === letter.toLowerCase()){
 		bullets.push(new bullet(currentTarget));
 		currentTarget.remainingLetters = currLett.substring(1);
 		if(currentTarget.remainingLetters === ""){
@@ -378,19 +209,236 @@ function checkFirstLetterOfCurrentTarget(letter){
 
 /* On trouve la prochaine cible */
 function findMissileToDestroy(letter){
-    missiles.some(function(m, index) {
-	if(m.motMissile.charAt(0) === letter){
+    console.log(letter+" "+allPlayers[username][0].motMissile);
+    allPlayers[username].some(function(m, index) {
+	if(m.motMissile.charAt(0) === letter.toLowerCase()){
 	     currentTarget = m;
 	     currentTarget.color = 'red';
 	     return true;
 	}
   });
 }
-function testMotEcrit(){
-    for(ind=0;ind < missiles.length;ind++){
-        if(motTapee===missiles[ind].motMissile){
-            missiles.splice(ind,1);
-            break;
+
+//////////////////////////////////////////////
+//          Fonction de mise à jour         //
+/////////////////////////////////////////////
+
+function updateMToEnemy(){
+    for(i = 0; i<missilesToEnemy.length; i++){
+        var m = missilesToEnemy[i];
+
+        if(m.isDestroyed){
+            missilesToEnemy.splice(i--, 1);
+        }else{
+            m.draw(ctx);
+            m.move();
         }
     }
 }
+
+function updateBullets(){
+    for(i=0; i < bullets.length; i++){
+        if(bullets[i].dead){
+            bullets.splice(i--,1);
+        }
+	else{
+	    bullets[i].move();
+	    bullets[i].draw(ctx);
+	}
+    }
+}
+
+function updateMissiles(){
+    for(i = 0; i< missiles.length; i++){
+	var m = missiles[i];
+        if(m.isDestroyed){
+	    if(m === currentTarget){
+		currentTarget = null;
+	    }
+            posX = m.x;
+            posY = m.y;
+            missiles.splice(i--, 1);
+            missilesExplosion.push(new explosions(posX,posY)); // Ajout d'un objet sprite pour l'explosion du missile.
+	}
+        else{
+	    m.draw(ctx);
+	    m.move();
+	}
+    }
+}
+
+function updateMissilesToEnemy(){
+    for(i = 0; i<missilesToEnemy.length; i++){
+        var m = missilesToEnemy[i];
+
+        if(m.isDestroyed){
+            missilesToEnemy.splice(i--, 1);
+        }else{
+            m.draw(ctx);
+            m.move();
+        }
+    }
+}
+/**
+ * Dessine l'explosion d'un missile
+ */
+function updateExplosion(){
+    for(var i = 0; i<missilesExplosion.length;i++){
+        if(missilesExplosion[i].explode.currentFrame<missilesExplosion[i].explode.spriteArray.length-1){ // Pour que l'explosion prenne fin.
+           missilesExplosion[i].explode.draw(ctx,missilesExplosion[i].posExplodeX,missilesExplosion[i].posExplodeY,1); 
+        }else{
+            missilesExplosion.splice(i--, 1);
+        }
+    }
+}
+
+function updatePlayerNewPos(newPos){
+    allPlayers[username].push(new missile(newPos.posX,newPos.word));
+}
+
+function updatePlayers(listOfPlayers) {
+  allPlayers = listOfPlayers;
+}
+////////////////////////////////////////////////////////
+//      Affichage missiles ennemis cote adversaire    //
+////////////////////////////////////////////////////////
+
+function drawAllPlayers() {
+  for(var name in allPlayers) {
+      for(i = 0; i<allPlayers[name].length; i++){
+        var m = allPlayers[name][i];
+        if(m instanceof missile){
+            if(m.isDestroyed){
+                if(m === currentTarget){
+                    currentTarget = null;
+                }
+                posX = m.x;
+                posY = m.y;
+                allPlayers[name].splice(i--, 1);
+                missilesExplosion.push(new explosions(posX,posY)); // Ajout d'un objet sprite pour l'explosion du missile.
+            }else{
+                m.draw(ctx);
+                m.move();
+            }
+            
+        }
+    }
+  }
+}
+
+////////////////////////////////////////////
+//              Constructeur             //
+///////////////////////////////////////////
+
+function missile(posX,word) {
+    this.x=posX;
+    this.y=0;
+    this.color='blue';
+    this.speed=0.5;
+    this.rand = Math.floor(Math.random() * 4);
+    this.motMissile = word;
+    this.remainingLetters = this.motMissile;
+    this.isDestroyed = false;
+    this.sprite = new Sprite();
+    this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
+    this.sprite.setNbImagesPerSecond(60);
+    this.move = function(){
+        this.y+=this.speed;
+	if(this.y >= h){
+	    this.isDestroyed = true;
+	}
+    };
+    this.draw = function(ctx){
+        ctx.save();
+	ctx.translate(this.x, this.y);
+        //console.log("la");
+        ctx.fillStyle = this.color;
+        ctx.fillRect(0,0,12*this.motMissile.length,20);
+        ctx.font = "15px Calibri,Geneva,Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(this.remainingLetters,0,15);
+	ctx.rotate(180*Math.PI/180);
+	this.sprite.draw(ctx, -50, 0);
+        ctx.restore();
+    };
+}
+
+function missileToEnemy(posX,word){
+    this.x=posX;
+    this.y=h; //h
+    this.color='orange';
+    this.speed=0.5;
+    //this.rand = Math.floor(Math.random() * 4);
+    this.motMissile = word;
+    this.remainingLetters = this.motMissile;
+    this.isDestroyed = false;
+    this.move = function(){
+        this.y-=this.speed;
+    if(this.y <= 0){
+        this.isDestroyed = true;
+        var toSend = {'user':username, 'word':this.motMissile,'posX':this.x}
+        socket.emit('sendpos', toSend);
+    }
+    };
+    this.draw = function(ctx){
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(0,0,12*this.motMissile.length,20);
+        ctx.font = "15px Calibri,Geneva,Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(this.remainingLetters,0,15);
+        ctx.restore();
+    };
+}
+
+function bullet(target){
+    this.x = w/2;
+    this.y = h;
+    this.target = target;
+    this.color = 'red';
+    this.speed = 5;
+    this.dead = false;
+    this.move = function(){
+	var dist = distanceBetweenTwoPoints(this.x, this.y, this.target.x, this.target.y);
+	if(dist <= 10 || !this.target || this.target.isDestroyed){
+	    this.dead = true;
+	}else{
+	    var angle = angleBetweenTwoPoints(this.target.x, this.target.y, this.x, this.y);
+	    
+	    this.x += Math.cos(angle) * this.speed ;
+	    this.y += Math.sin(angle) * this.speed;
+	    
+	    //console.log("Apres:"+this.x+";"+this.y);
+	    //console.log("==========================");
+	}
+    };
+    this.draw = function(ctx){
+        ctx.save();
+	ctx.translate(this.x, this.y);
+	ctx.beginPath();
+	ctx.arc(0, 0, 5, 0, 2 * Math.PI, false);
+	ctx.fillStyle = this.color;
+	ctx.fill();
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = '#003300';
+	ctx.stroke();
+        ctx.restore();
+    };
+}
+
+/**
+ * Objet sprite permettant le dessin de l'explosion.
+ * @param {type} x positon x de l'explosion
+ * @param {type} y position y de l'explosion
+ */
+function explosions(x,y) {
+    this.explode = new Sprite();
+    this.explode.extractSprites(spritesheet, NB_POSTURES, 
+                                NB_FRAMES_PER_POSTURE, 
+                                SPRITE_WIDTH, SPRITE_HEIGHT);
+    this.explode.setNbImagesPerSecond(60);
+    this.posExplodeX=x;
+    this.posExplodeY=y;
+}
+
