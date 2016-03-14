@@ -33,13 +33,14 @@ and open the template in the editor.
 	var conversation, data, datasend, users;
 
 	var socket = io.connect();
+        var countConnections = 0;
 
 	// on connection to server, ask for user's name with an anonymous callback
 	socket.on('connect', function(){
 		// call the server-side function 'adduser' and send one parameter (value of prompt)
 		socket.emit('adduser', username);
-	});
-
+        });
+        
 	// listener, whenever the server emits 'updatechat', this updates the chat body 
 	socket.on('updatechat', function (username, data) {
 		var chatMessage = "<b>" + username + ":</b> " + data + "<br>";
@@ -49,6 +50,14 @@ and open the template in the editor.
     // just one player moved
 	socket.on('updatepos', function (username, newPos) {
 		updatePlayerNewPos(newPos);
+	});
+        
+        socket.on('updateVue', function (username, newPos) {
+		updateEnemyVue(newPos);
+	});
+        
+        socket.on('updateTarget', function (username, newPos) {
+		updateTarget(newPos);
 	});
         
 

@@ -6,7 +6,7 @@ var allPlayers = {};
 
 
 var canvas, ctx, w, h; 
-var canvasT , ctxT, wT, hT;
+var canvasE , ctxE, wE, hE;
 var canvasW , ctxW, wW, hW;
 var pos,index,ind,posY;
 var currentTarget = null;
@@ -37,7 +37,6 @@ var missilesExplosion = [];
 
 var wordsToWrite = [];
 
-
 window.onload = function(){
     init();
 };
@@ -49,10 +48,10 @@ function init(){
     h = canvas.height;
     ctx = canvas.getContext('2d');
     
-    // canvasT = document.getElementById("canvasTexte");
-    // wT = canvasT.width;
-    // hT = canvasT.height;
-    // ctxT = canvasT.getContext('2d');
+    canvasE = document.getElementById("canvasEnemy");
+    wE = canvasE.width;
+    hE = canvasE.height;
+    ctxE = canvasE.getContext('2d');
     
     canvasW = document.getElementById("canvasWords");
     wW = canvasW.width;
@@ -73,14 +72,16 @@ function init(){
 
 function mainloop(){
     ctx.clearRect(0, 0, w, h);
-        
+    ctxE.clearRect(0, 0, wE, hE);
     updateMissilesToEnemy();
 
     updateBullets();
     
-    updateExplosion();
+    updateExplosion(ctx);
         
     drawAllPlayers();
+    
+    drawVueEnemy()
     
     requestAnimationFrame(mainloop);
 }
@@ -157,7 +158,7 @@ function writeOnCanvasW(evt){
 ///////////////////////////////////////////
 
 function launchMissile(word){
-    missileSend = new missileToEnemy(Math.random()*w,word);
+    missileSend = new missileToEnemy(Math.random()*w,word,true);
     missilesToEnemy.push(missileSend);
 }
 
@@ -171,6 +172,8 @@ function checkFirstLetterOfCurrentTarget(letter){
     if(currentTarget !== null){
 	var currLett = currentTarget.remainingLetters;
 	if(currentTarget !== "" && currLett.charAt(0) === letter.toLowerCase()){
+                var toSendTarget = {'user':username, 'word':currentTarget.motMissile,'letter':letter}
+                socket.emit('sendTarget', toSendTarget);
 		bullets.push(new bullet(currentTarget));
 		currentTarget.remainingLetters = currLett.substring(1);
 		if(currentTarget.remainingLetters === ""){
@@ -184,7 +187,6 @@ function checkFirstLetterOfCurrentTarget(letter){
 
 /* On trouve la prochaine cible */
 function findMissileToDestroy(letter){
-    console.log(letter+" "+allPlayers[username][0].motMissile);
     allPlayers[username].some(function(m, index) {
 	if(m.motMissile.charAt(0) === letter.toLowerCase()){
 	     currentTarget = m;
@@ -314,7 +316,7 @@ function missile(posX,word) {
     this.motMissile = word;
     this.remainingLetters = this.motMissile;
     this.isDestroyed = false;
-	this.alreadyHit = this.motMissile.length;
+    this.alreadyHit = this.motMissile.length;
     this.sprite = new Sprite();
     this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
     this.sprite.setNbImagesPerSecond(60);
@@ -339,7 +341,7 @@ function missile(posX,word) {
     };
 }
 
-function missileToEnemy(posX,word){
+function missileToEnemy(posX,word,bool){
     this.x=posX;
     this.y=h; //h
     this.color='orange';
@@ -352,8 +354,12 @@ function missileToEnemy(posX,word){
         this.y-=this.speed;
     if(this.y <= 0){
         this.isDestroyed = true;
-        var toSend = {'user':username, 'word':this.motMissile,'posX':this.x}
-        socket.emit('sendpos', toSend);
+        if(bool){
+            var toSend = {'user':username, 'word':this.motMissile,'posX':this.x}
+            socket.emit('sendpos', toSend);
+            var targetEnemy = new missile(this.x,this.motMissile);
+            missileVue.push(targetEnemy);
+        }
     }
     };
     this.draw = function(ctx){
@@ -366,6 +372,10 @@ function missileToEnemy(posX,word){
         ctx.fillText(this.remainingLetters,0,15);
         ctx.restore();
     };
+    if(bool){
+        var toSendVue = {'user':username, 'word':this.motMissile,'posX':this.x}
+        socket.emit('sendVue', toSendVue);
+    }
 }
 
 function bullet(target){
@@ -422,3 +432,87 @@ function explosions(x,y) {
     this.posExplodeY=y;
 }
 
+
+
+//////////////////////////////////////////////////
+
+//Enemy Vue
+var missileVueEnemy = [];
+var bulletVueEnemy = [];
+var missileVue = [];
+var explosionEnemy =[];
+var theLetter = null;
+var theTarget = null;
+
+function updateEnemyVue(newPos){
+    missileVueEnemy.push(new missileToEnemy(newPos.posX,newPos.word,false));
+}
+
+function updateTarget(newPos){
+    theLetter = newPos.letter;
+    var tar = newPos.word;
+    for(var i = 0; i<missileVue.length; i++){
+        var m = missileVue[i];
+        if(m.motMissile === tar){
+            theTarget = m;
+        }
+    }
+}
+
+function drawVueEnemy(){
+    for(var i = 0; i<missileVueEnemy.length; i++){
+        var m = missileVueEnemy[i];
+
+        if(m.isDestroyed){
+            missileVueEnemy.splice(i--, 1);
+        }else{
+            m.draw(ctxE);
+            m.move();
+        }
+    }
+    for(var i = 0; i<missileVue.length; i++){
+        var m = missileVue[i];
+        if(m instanceof missile){
+            if(m.isDestroyed){
+                if(m === theTarget){
+                    theTarget = null;
+                }
+                posX = m.x;
+                posY = m.y;
+                missileVue.splice(i--, 1);
+                explosionEnemy.push(new explosions(posX,posY-50)); // Ajout d'un objet sprite pour l'explosion du missile.
+            }else{
+                m.draw(ctxE);
+                m.move();
+            }
+            
+        }
+    }
+     for(var i = 0; i<explosionEnemy.length;i++){
+        if(explosionEnemy[i].explode.currentFrame<explosionEnemy[i].explode.spriteArray.length-1){ // Pour que l'explosion prenne fin.
+           explosionEnemy[i].explode.draw(ctxE,explosionEnemy[i].posExplodeX,explosionEnemy[i].posExplodeY,1); 
+        }else{
+            explosionEnemy.splice(i--, 1);
+        }
+    }
+    if(theTarget !== null){
+	var currLetter = theTarget.remainingLetters;
+	if(theTarget !== "" && currLetter.charAt(0) === theLetter.toLowerCase()){
+		bulletVueEnemy.push(new bullet(theTarget));
+		theTarget.remainingLetters = currLetter.substring(1);
+		if(theTarget.remainingLetters === ""){
+			theTarget.color = "grey";
+			theTarget = null;
+		}
+	}
+    }
+    for(var i=0; i < bulletVueEnemy.length; i++){
+        if(bulletVueEnemy[i].dead){
+            bulletVueEnemy.splice(i--,1);
+        }
+	else{
+	    bulletVueEnemy[i].move();
+	    bulletVueEnemy[i].draw(ctxE);
+	}
+    }
+}

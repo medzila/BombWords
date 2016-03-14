@@ -47,6 +47,18 @@ io.sockets.on('connection', function (socket) {
 		socket.broadcast.emit('updatepos', socket.username, newPos);
 	});
         
+        socket.on('sendVue', function (newPos) {
+		// we tell the client to execute 'updatepos' with 2 parameters
+		//console.log("recu sendVue");
+		socket.broadcast.emit('updateVue', socket.username, newPos);
+	});
+        
+        socket.on('sendTarget', function (newPos) {
+		// we tell the client to execute 'updatepos' with 2 parameters
+		//console.log("recu sendTarget");
+		socket.broadcast.emit('updateTarget', socket.username, newPos);
+	});
+        
 	// when the client emits 'adduser', this listens and executes
 	socket.on('adduser', function(username){
 		// we store the username in the socket session for this client
@@ -72,14 +84,14 @@ io.sockets.on('connection', function (socket) {
                 var player = [];
 		listOfPlayers[username] = player;
 		io.sockets.emit('updatePlayers',listOfPlayers);
-                console.log(listOfPlayers);
+                console.log(usernames);
 	});
 
 	// when the user disconnects.. perform this
 	socket.on('disconnect', function(){
 		// remove the username from global usernames list
 		delete usernames[socket.username];
-				// update list of users in chat, client-side
+		// update list of users in chat, client-side
 		io.sockets.emit('updateusers', usernames);
 
 		// Remove the player too
