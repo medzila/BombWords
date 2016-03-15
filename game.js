@@ -39,12 +39,14 @@ var lifebar_end_URL = "image/lifebar_end.png";
 var cannon_socle_URL = "image/cannon_socle.png";
 var cannon_URL = "image/cannon.png";
 var mute_URL = "image/mute.png";
+var cannonball_URL = "image/cannon_ball.png";
 
 var lifebar_profile_img;
 var lifebar_end_img;
 var cannon_socle_img;
 var cannon_img;
 var mute_img;
+var cannonball_img;
 
 var posX;
 var posY;
@@ -96,6 +98,9 @@ function init(){
 
     cannon_img = new Image();
     cannon_img.src = cannon_URL;
+
+    cannonball_img = new Image();
+    cannonball_img.src = cannonball_URL;
 
     mute_img = new Image();
     mute_img.src = mute_URL;
@@ -539,13 +544,7 @@ function bullet(target){
     this.draw = function(ctx){
         ctx.save();
 	ctx.translate(this.x, this.y);
-	ctx.beginPath();
-	ctx.arc(0, 0, 5, 0, 2 * Math.PI, false);
-	ctx.fillStyle = this.color;
-	ctx.fill();
-	ctx.lineWidth = 2;
-	ctx.strokeStyle = '#003300';
-	ctx.stroke();
+	ctx.drawImage(cannonball_img, 0, 0, cannonball_img.width, cannonball_img.height, 0, 0, 20, 20);
         ctx.restore();
     };
 }
