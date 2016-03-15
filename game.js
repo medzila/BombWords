@@ -19,9 +19,14 @@ var bullets = [];
 var SPRITESHEET_MISSILES_URL = "image/sprite_sheet_missiles.png";
 var SPRITE_MISSILES_WIDTH = 32;
 var SPRITE_MISSILES_HEIGHT = 132;
-
 var NB_POSTURES_MISSILES=1;
 var NB_FRAMES_PER_POSTURE_MISSILES = 25;
+
+var SPRITESHEET_EXPLOSION_URL = "image/sprite_sheet_explosion.png";
+var SPRITE_EXPLOSION_WIDTH = 64;
+var SPRITE_EXPLOSION_HEIGHT = 148;
+var NB_POSTURES_EXPLOSION=1;
+var NB_FRAMES_PER_POSTURE_EXPLOSION = 24;
 
 var SPRITESHEET_URL = "image/explosions.png";
 var SPRITE_WIDTH = 900/9;
@@ -31,7 +36,7 @@ var NB_FRAMES_PER_POSTURE = 73;
 var posX;
 var posY;
 
-var spritesheet;
+var spritesheet, spritesheet_explosion;
 
 var missilesExplosion = [];
 
@@ -296,7 +301,15 @@ function drawAllPlayers() {
                 posX = m.x;
                 posY = m.y;
                 allPlayers[name].splice(i--, 1);
-                missilesExplosion.push(new explosions(posX,posY-50)); // Ajout d'un objet sprite pour l'explosion du missile.
+                var explo;
+                if(posY >= h){
+                    explo = new explosions(1,posX, posY-148);
+                    //console.log("sol "+posY);
+                }else{
+                    explo = new explosions(0,posX, posY-50);
+                    //console.log("pas sol "+posY);
+                }
+                missilesExplosion.push(explo); // Ajout d'un objet sprite pour l'explosion du missile.
                 sound.play();
             }else{
                 m.draw(ctx);
@@ -355,6 +368,9 @@ function missileToEnemy(posX,word,bool){
     this.motMissile = word;
     this.remainingLetters = this.motMissile;
     this.isDestroyed = false;
+    this.sprite = new Sprite();
+    this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
+    this.sprite.setNbImagesPerSecond(60);
     this.move = function(){
         this.y-=this.speed;
     if(this.y <= 0){
@@ -375,6 +391,7 @@ function missileToEnemy(posX,word,bool){
         ctx.font = "15px Calibri,Geneva,Arial";
         ctx.fillStyle = "white";
         ctx.fillText(this.remainingLetters,0,15);
+        this.sprite.draw(ctx,25,-125)
         ctx.restore();
     };
     if(bool){
@@ -427,11 +444,25 @@ function bullet(target){
  * @param {type} x positon x de l'explosion
  * @param {type} y position y de l'explosion
  */
-function explosions(x,y) {
+function explosions(isGround,x,y) {
     this.explode = new Sprite();
-    this.explode.extractSprites(spritesheet, NB_POSTURES, 
-                                NB_FRAMES_PER_POSTURE, 
-                                SPRITE_WIDTH, SPRITE_HEIGHT);
+    var spritesheet_explo, NB_POSTURES_EXPLO, NB_FRAMES_PER_POSTURE_EXPLO, SPRITE_EXPLO_WIDTH, SPRITE_EXPLO_HEIGHT;
+    if(isGround === 0){
+        spritesheet_explo= spritesheet;
+        NB_POSTURES_EXPLO= NB_POSTURES;
+        NB_FRAMES_PER_POSTURE_EXPLO= NB_FRAMES_PER_POSTURE;
+        SPRITE_EXPLO_WIDTH= SPRITE_WIDTH;
+        SPRITE_EXPLO_HEIGHT= SPRITE_HEIGHT;
+    }else{
+        spritesheet_explo= spritesheet_explosion;
+        NB_POSTURES_EXPLO= NB_POSTURES_EXPLOSION;
+        NB_FRAMES_PER_POSTURE_EXPLO= NB_FRAMES_PER_POSTURE_EXPLOSION;
+        SPRITE_EXPLO_WIDTH= SPRITE_EXPLOSION_WIDTH;
+        SPRITE_EXPLO_HEIGHT= SPRITE_EXPLOSION_HEIGHT;
+    }
+    this.explode.extractSprites(spritesheet_explo, NB_POSTURES_EXPLO, 
+                                NB_FRAMES_PER_POSTURE_EXPLO, 
+                                SPRITE_EXPLO_WIDTH, SPRITE_EXPLO_HEIGHT);
     this.explode.setNbImagesPerSecond(60);
     this.posExplodeX=x;
     this.posExplodeY=y;
@@ -486,7 +517,15 @@ function drawVueEnemy(){
                 posX = m.x;
                 posY = m.y;
                 missileVue.splice(i--, 1);
-                explosionEnemy.push(new explosions(posX,posY-50)); // Ajout d'un objet sprite pour l'explosion du missile.
+                var explo;
+                if(posY >= h){
+                    explo = new explosions(1,posX, posY-148);
+                    //console.log("sol "+posY);
+                }else{
+                    explo = new explosions(0,posX, posY-50);
+                    //console.log("pas sol "+posY);
+                }
+                explosionEnemy.push(explo); // Ajout d'un objet sprite pour l'explosion du missile.
             }else{
                 m.draw(ctxE);
                 m.move();

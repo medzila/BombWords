@@ -94,4 +94,10 @@ function loadSprites(){
     //spritesheet_missile.onload = function() {
       //requestAnimationFrame(updateMissile);
     //}; // onload
+
+    spritesheet_explosion = new Image();
+    spritesheet_explosion.src = SPRITESHEET_EXPLOSION_URL;
+    spritesheet_explosion.onload = function() {
+      requestAnimationFrame(updateExplosion);
+    }
 }
