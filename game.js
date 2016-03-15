@@ -58,6 +58,9 @@ var wordsToWrite = [];
 var sound;
 var backgroundAudio, bulletSound, launchSound, explosionSound;
 
+var player1;
+
+
 window.onload = function(){
     init();
 };
@@ -116,6 +119,8 @@ function init(){
 
     explosionSound = new SoundPool(20);
     explosionSound.init("explosion");
+    
+    player1 = new player();
 
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
@@ -140,8 +145,8 @@ function mainloop(){
     
     drawVueEnemy();
 
-    player.draw();
-        
+    player1.draw(ctx);
+    
     requestAnimationFrame(mainloop);
 }
 
@@ -351,7 +356,7 @@ function updateExplosion(){
 }
 
 function updatePlayerNewPos(newPos){
-    allPlayers[username].push(new missile(newPos.posX,newPos.word));
+    allPlayers[username].push(new missile(newPos.posX,newPos.word,true));
 }
 
 function updatePlayers(listOfPlayers) {
@@ -396,40 +401,39 @@ function drawAllPlayers() {
 ////////////////////////////////////////////
 //              Constructeur             //
 ///////////////////////////////////////////
-var player = {
-  life : 100,
-  move: function() {
-  },
-  looseLife : function() {
-    this.life = this.life <= 0 ? 0 : this.life - 20;
-  },
-  draw: function() {
-    ctx.save();
+function player() {
+    this.playerName = username;
+    this.life = 100;
+    this.looseLife = function() {
+        this.life = this.life <= 0 ? 0 : this.life - 20;
+    };
+    this.draw = function(ctx) {
+        ctx.save();
 
-    ctx.drawImage(lifebar_profile_img, w/8 , h/8);
-    ctx.drawImage(lifebar_end_img, 7*w/8, h/8 + 16);
+        ctx.drawImage(lifebar_profile_img, w/8 , h/8);
+        ctx.drawImage(lifebar_end_img, 7*w/8, h/8 + 16);
 
-    ctx.fillStyle = "grey";
-    posX = w/8+66;
-    posY = h/8+19;
-    long = 234;
-    larg = 20;
-    ctx.fillRect(posX, posY, long, larg);
+        ctx.fillStyle = "grey";
+        posX = w/8+66;
+        posY = h/8+19;
+        long = 234;
+        larg = 20;
+        ctx.fillRect(posX, posY, long, larg);
 
-    ctx.fillStyle = "green";
-    ctx.fillRect(posX, posY+2, long*(this.life/100) -2, larg-4);
+        ctx.fillStyle = "green";
+        ctx.fillRect(posX, posY+2, long*(this.life/100) -2, larg-4);
 
-    //ctx.rotate(90 * Math.PI/180);
-    ctx.drawImage(cannon_img, w/2 -10, h-46);
-    //ctx.rotate(-90 * Math.PI/180);
-    ctx.drawImage(cannon_socle_img, w/2 - 13, h - 18);
+        //ctx.rotate(90 * Math.PI/180);
+        ctx.drawImage(cannon_img, w/2 -10, h-46);
+        //ctx.rotate(-90 * Math.PI/180);
+        ctx.drawImage(cannon_socle_img, w/2 - 13, h - 18);
 
-    ctx.drawImage(mute_img, 0, 0, mute_img.width, mute_img.height, 0, 0, 20, 20);
-    ctx.restore();
-  }
-};
+        ctx.drawImage(mute_img, 0, 0, mute_img.width, mute_img.height, 0, 0, 20, 20);
+        ctx.restore();
+    };
+}
 
-function missile(posX,word) {
+function missile(posX,word,loose) {
     this.x=posX;
     this.y=0;
     this.color='blue';
@@ -446,7 +450,9 @@ function missile(posX,word) {
     this.move = function(){
         this.y+=this.speed;
 	if(this.y >= h){
-        player.looseLife();
+        if(player1.playerName === username && loose){
+                player1.looseLife();
+            }
 	    this.isDestroyed = true;
 	}
     };
@@ -485,7 +491,7 @@ function missileToEnemy(posX,word,bool){
         if(bool){
             var toSend = {'user':username, 'word':this.motMissile,'posX':this.x}
             socket.emit('sendpos', toSend);
-            var targetEnemy = new missile(this.x,this.motMissile);
+            var targetEnemy = new missile(this.x,this.motMissile,false);
             missileVue.push(targetEnemy);
         }
     }
