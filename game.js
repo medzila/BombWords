@@ -33,6 +33,17 @@ var SPRITE_WIDTH = 900/9;
 var SPRITE_HEIGHT = 900/9;
 var NB_POSTURES=1;
 var NB_FRAMES_PER_POSTURE = 73;
+
+var lifebar_profile_URL = "image/lifebar_profil.png";
+var lifebar_end_URL = "image/lifebar_end.png";
+var cannon_socle_URL = "image/cannon_socle.png";
+var cannon_URL = "image/cannon.png";
+
+var lifebar_profile_img;
+var lifebar_end_img;
+var cannon_socle_img;
+var cannon_img;
+
 var posX;
 var posY;
 
@@ -68,6 +79,18 @@ function init(){
     
     loadSprites();
     
+    lifebar_profile_img = new Image();
+    lifebar_profile_img.src = lifebar_profile_URL;
+
+    lifebar_end_img = new Image();
+    lifebar_end_img.src = lifebar_end_URL;
+
+    cannon_socle_img = new Image();
+    cannon_socle_img.src = cannon_socle_URL;
+
+    cannon_img = new Image();
+    cannon_img.src = cannon_URL;
+
     selectWordsToWrite(wordsToWrite);
     writeWordsCanvas();
     
@@ -91,6 +114,8 @@ function mainloop(){
     drawAllPlayers();
     
     drawVueEnemy();
+
+    player.draw();
         
     requestAnimationFrame(mainloop);
 }
@@ -324,6 +349,33 @@ function drawAllPlayers() {
 ////////////////////////////////////////////
 //              Constructeur             //
 ///////////////////////////////////////////
+var player = {
+  life : 100,
+  move: function () {
+  },
+  draw: function() {
+    ctx.save();
+
+    ctx.drawImage(lifebar_profile_img, w/8 , h/8);
+    ctx.drawImage(lifebar_end_img, 7*w/8, h/8 + 16);
+
+    ctx.fillStyle = "grey";
+    posX = w/8+66;
+    posY = h/8+19;
+    long = 234;
+    larg = 20;
+    ctx.fillRect(posX, posY, long, larg);
+
+    ctx.fillStyle = "green";
+    ctx.fillRect(posX, posY+2, long*(this.life/100) -2, larg-4);
+
+    //ctx.rotate(90 * Math.PI/180);
+    ctx.drawImage(cannon_img, w/2 -10, h-46);
+    //ctx.rotate(-90 * Math.PI/180);
+    ctx.drawImage(cannon_socle_img, w/2 - 13, h - 18);
+    ctx.restore();
+  }
+};
 
 function missile(posX,word) {
     this.x=posX;
@@ -341,20 +393,21 @@ function missile(posX,word) {
     this.move = function(){
         this.y+=this.speed;
 	if(this.y >= h){
+        player.life -=10;
 	    this.isDestroyed = true;
 	}
     };
     this.draw = function(ctx){
         ctx.save();
-	ctx.translate(this.x, this.y);
+	    ctx.translate(this.x, this.y);
         //console.log("la");
         ctx.fillStyle = this.color;
         ctx.fillRect(0,0,12*this.motMissile.length,20);
         ctx.font = "15px Calibri,Geneva,Arial";
         ctx.fillStyle = "white";
         ctx.fillText(this.remainingLetters,0,15);
-	ctx.rotate(180*Math.PI/180);
-	this.sprite.draw(ctx, -50, 0);
+	    ctx.rotate(180*Math.PI/180);
+	    this.sprite.draw(ctx, -50, 0);
         ctx.restore();
     };
 }
