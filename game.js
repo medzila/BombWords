@@ -40,6 +40,7 @@ var cannon_socle_URL = "image/cannon_socle.png";
 var cannon_URL = "image/cannon.png";
 var mute_URL = "image/mute.png";
 var cannonball_URL = "image/cannon_ball.png";
+var target_URL = "image/target.png";
 
 var lifebar_profile_img;
 var lifebar_end_img;
@@ -47,6 +48,7 @@ var cannon_socle_img;
 var cannon_img;
 var mute_img;
 var cannonball_img;
+var target_img;
 
 var posX;
 var posY;
@@ -101,6 +103,9 @@ function init(){
     
     cannonball_img = new Image();
     cannonball_img.src = cannonball_URL;
+
+    target_img = new Image();
+    target_img.src = target_URL;
 
     mute_img = new Image();
     mute_img.src = mute_URL;
@@ -473,8 +478,15 @@ function missile(posX,word,loose) {
         ctx.font = "15px Calibri,Geneva,Arial";
         ctx.fillStyle = "white";
         ctx.fillText(this.remainingLetters,0,15);
+
 	    ctx.rotate(180*Math.PI/180);
 	    this.sprite.draw(ctx,  - this.wordWidth/2 - 16 , 0);
+
+        ctx.rotate(-180*Math.PI/180);
+        if(this === currentTarget){
+            ctx.drawImage(target_img, 0, 0, target_img.width, target_img.height, this.wordWidth / 2 - 40, -100, 80, 80);
+        }
+
         ctx.restore();
     };
 }
