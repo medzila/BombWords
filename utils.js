@@ -22,10 +22,31 @@ function angleBetweenTwoPoints(x1, y1, x2, y2){
 
 function selectWordsToWrite(tab){
     var rand = Math.floor(Math.random() * 10)+2;
-    while(tab.length < 10){
+    while(tab.length < 30){
         wordsToWrite.push(WORDS[rand][Math.floor(Math.random()*WORDS[rand].length)]);
         rand = Math.floor(Math.random() * 10)+2;
     }
+}
+
+var getOffsetPosition = function(obj){
+    var offsetX = offsetY = 0;
+ 
+    if (obj.offsetParent) {
+        do {
+            offsetX += obj.offsetLeft;
+            offsetY += obj.offsetTop;
+        } while(obj = obj.offsetParent);
+    }
+    return [offsetX,offsetY];
+}
+ 
+var getMousePosition = function(e,canvasElement){
+    OFFSET = getOffsetPosition(canvasElement);
+ 
+    mouse_x = (e.pageX || (e.clientX + document.body.scrollLeft +  document.documentElement.scrollLeft)) - OFFSET[0];
+    mouse_y = (e.pageY || (e.clientY + document.body.scrollTop + document.documentElement.scrollTop)) - OFFSET[1];
+ 
+    return [mouse_x,mouse_y];
 }
 
  WORDS = {

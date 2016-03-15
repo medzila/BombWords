@@ -38,11 +38,13 @@ var lifebar_profile_URL = "image/lifebar_profil.png";
 var lifebar_end_URL = "image/lifebar_end.png";
 var cannon_socle_URL = "image/cannon_socle.png";
 var cannon_URL = "image/cannon.png";
+var mute_URL = "image/mute.png";
 
 var lifebar_profile_img;
 var lifebar_end_img;
 var cannon_socle_img;
 var cannon_img;
+var mute_img;
 
 var posX;
 var posY;
@@ -54,6 +56,7 @@ var missilesExplosion = [];
 var wordsToWrite = [];
 
 var sound;
+var backgroundAudio;
 
 window.onload = function(){
     init();
@@ -91,20 +94,33 @@ function init(){
     cannon_img = new Image();
     cannon_img.src = cannon_URL;
 
+    mute_img = new Image();
+    mute_img.src = mute_URL;
+
     selectWordsToWrite(wordsToWrite);
     writeWordsCanvas();
     
     sound = document.querySelector('#audioPlayer');
     
+    backgroundAudio = new Audio("sounds/backgroundAudio.wav");
+    backgroundAudio.loop = true;
+    backgroundAudio.volume = .25;
+    backgroundAudio.load();
+    backgroundAudio.play();
+
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
+    canvas.addEventListener("mousedown", clickFunction);
     canvasW.addEventListener('keyup', writeOnCanvasW, false);
 };
+
 
 function mainloop(){
     ctx.clearRect(0, 0, w, h);
     ctxE.clearRect(0, 0, wE, hE);
+    ctxW.clearRect(0, 0, wW, hW);
+    drawCanvasWords();
     updateMissilesToEnemy();
 
     updateBullets();
@@ -123,10 +139,20 @@ function mainloop(){
 ////////////////////////////////////////////
 //              Evenements               //
 ///////////////////////////////////////////
+function drawCanvasWords(){
+    ctxW.save();
 
+    ctxW.globalAlpha = 0.2;
+    ctxW.fillStyle = "red";
+    ctxW.fillRect(0, 0, wW, 30);
+    ctxW.globalAlpha = 1;
+    ctxW.fillStyle = "black";
+    writeWordsCanvas();
+
+    ctxW.restore();
+}
 function writeWordsCanvas(){
     ctxW.font = "15px Calibri,Geneva,Arial";
-    ctxW.clearRect(0, 0, wW, hW);
     pos = 10;
     posY = 20;
 
@@ -161,6 +187,16 @@ function toucheRelachee(evt){
     }
 }
 
+
+var clickFunction = function(e) {
+    var positions = getMousePosition(e,canvas);
+ 
+    if ( positions[ 0 ] > 0 && positions[ 0 ] < 20 
+      && positions[ 1 ] > 0 && positions[ 1 ] < 20 + 19 ) {
+        mute();
+    }
+}
+
 function writeOnCanvasW(evt){
     var car = String.fromCharCode(evt.keyCode);
 
@@ -181,7 +217,7 @@ function writeOnCanvasW(evt){
             currentWord = null;
             currentLetters = null;
         }
-        writeWordsCanvas();
+        //writeWordsCanvas();
     }
 
     //console.log(car+", "+currentLetters);
@@ -351,7 +387,10 @@ function drawAllPlayers() {
 ///////////////////////////////////////////
 var player = {
   life : 100,
-  move: function () {
+  move: function() {
+  },
+  looseLife : function() {
+    this.life = this.life <= 0 ? 0 : this.life - 20;
   },
   draw: function() {
     ctx.save();
@@ -373,6 +412,8 @@ var player = {
     ctx.drawImage(cannon_img, w/2 -10, h-46);
     //ctx.rotate(-90 * Math.PI/180);
     ctx.drawImage(cannon_socle_img, w/2 - 13, h - 18);
+
+    ctx.drawImage(mute_img, 0, 0, mute_img.width, mute_img.height, 0, 0, 20, 20);
     ctx.restore();
   }
 };
@@ -393,7 +434,7 @@ function missile(posX,word) {
     this.move = function(){
         this.y+=this.speed;
 	if(this.y >= h){
-        player.life -=10;
+        player.looseLife();
 	    this.isDestroyed = true;
 	}
     };
