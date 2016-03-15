@@ -20,6 +20,9 @@ canvas {
     background: url("./image/city_enemy_background.png");
     background-size: 100% 100%;
 }
-#canvasWords{
-    
+#canvasWords:focus{
+    background-color: #ff8080;
+    border: 3px solid red;
 }
+
+

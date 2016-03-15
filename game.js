@@ -167,7 +167,7 @@ function mainloop(){
 function drawCanvasWords(){
     ctxW.save();
 
-    ctxW.globalAlpha = 0.2;
+    ctxW.globalAlpha = 0.8;
     ctxW.fillStyle = "red";
     ctxW.fillRect(0, 0, wW, 30);
     ctxW.globalAlpha = 1;
