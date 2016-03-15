@@ -19,11 +19,18 @@ and open the template in the editor.
             <source src="Explo.mp3">
         </audio>
         <div id="gameDiv">
+        	<div style="display:inline-block;">
+        	<h2> Your city </h2>
         	<canvas id="canvasGame" width="400" height="400" tabindex="1" class="backgroundCity"></canvas>
+        	</div>
 
+        	<div style="display:inline-block;">
         	<canvas id="canvasWords" width="100" height="400" tabindex="1"></canvas>
-		
+        	</div>
+        	<div style="display:inline-block;">
+			<h2> Enemy's city </h2>
         	<canvas id="canvasEnemy" width="400" height="400" tabindex="1" class="backgroundCityEnemy"></canvas>
+        	</div>
         </div>
 
         <script type="text/javascript" src="game.js"></script>
