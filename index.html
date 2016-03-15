@@ -14,7 +14,7 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <link rel="stylesheet" type="text/css" href="docCss.css">	 
     </head>
-    <body>
+    <body background="image/bombFOnd.jpg">
         <audio id="audioPlayer">
             <source src="Explo.mp3">
         </audio>
@@ -77,6 +77,10 @@ and open the template in the editor.
         
         socket.on('updateEndGame', function (username, newPos) {
 		updateEndGame(newPos);
+	});
+        
+        socket.on('updateRestart', function (username, newPos) {
+		updateRestart(newPos);
 	});
         
 

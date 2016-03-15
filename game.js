@@ -68,6 +68,9 @@ var playerEnemy;
 var endGame;
 var enemyLoose;
 
+var restart = false;
+var restartSend = false;
+
 window.onload = function(){
     init();
 };
@@ -148,14 +151,33 @@ function init(){
     playerEnemy = new player(100);
     
     endGame = true;
+    restartSend = false;
     
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
     canvas.addEventListener("mousedown", clickFunction);
     canvasW.addEventListener('keyup', writeOnCanvasW, false);
+    
+    canvasWin.addEventListener('click',restartWinner);
+    canvasLoose.addEventListener('click',restartLooser);
 };
 
+function restartWinner(){
+    var toSendRes = {'user':username, 'restart':true}
+    socket.emit('sendRestart', toSendRes);
+    restartSend = true;
+}
+
+function restartLooser(){
+    var toSendRes = {'user':username, 'restart':true}
+    socket.emit('sendRestart', toSendRes);
+    restartSend = true;
+}
+
+function updateRestart(newPos){
+    restart = newPos.restart;
+}
 
 function mainloop(){
     if(endGame){
@@ -187,6 +209,9 @@ function mainloop(){
             ctxLoose.font="30px Verdana";
             ctxLoose.fillStyle='red';
             ctxLoose.fillText("Dommage ! Vous avez perdu :(" ,wLoose/2,hLoose/2);
+        }
+        if(restart && restartSend){
+            restartFunction();
         }
     }
     requestAnimationFrame(mainloop);
@@ -490,7 +515,7 @@ function missile(posX,word,loose) {
     this.x=posX;
     this.y=0;
     this.color='blue';
-    this.speed=2;
+    this.speed=1;
     this.rand = Math.floor(Math.random() * 4);
     this.motMissile = word;
     this.remainingLetters = this.motMissile;
@@ -539,7 +564,7 @@ function missileToEnemy(posX,word,bool){
     this.x=posX + this.wordwidth > w ? posX - this.wordWidth : posX;
     this.y=h; //h
     this.color='orange';
-    this.speed=2;
+    this.speed=1;
     //this.rand = Math.floor(Math.random() * 4);
     this.remainingLetters = this.motMissile;
     this.isDestroyed = false;
@@ -734,4 +759,34 @@ function drawVueEnemy(){
     }
     playerEnemy.life = healthEnemy;
     playerEnemy.draw(ctxE);
+}
+
+function restartFunction(){
+    player1 = new player(100);
+    currentTarget = null;
+    currentLetters = null;
+    currentWord = null;
+    missiles = [];
+    missilesToEnemy = [];
+    bullets = [];
+    playerEnemy = new player(100);
+    endGame = true;
+    restartSend = false;
+    document.getElementById("gameDiv").style.display="block";
+    canvasWin.style.display="none";
+    canvasLoose.style.display="none";
+    wordsToWrite = [];
+    missilesExplosion = [];
+    selectWordsToWrite(wordsToWrite);
+    writeWordsCanvas();
+    missileVueEnemy = [];
+    bulletVueEnemy = [];
+    missileVue = [];
+    explosionEnemy =[];
+    theLetter = null;
+    theTarget = null;
+    healthEnemy = 100;
+    allPlayers[username] = [];
+    restart = false;
+    restartSend = false;
 }

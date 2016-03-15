@@ -71,6 +71,12 @@ io.sockets.on('connection', function (socket) {
 		socket.broadcast.emit('updateHealth', socket.username, newPos);
 	});
         
+        socket.on('sendRestart', function (newPos) {
+		// we tell the client to execute 'updatepos' with 2 parameters
+		//console.log("recu sendTarget");
+		socket.broadcast.emit('updateRestart', socket.username, newPos);
+	});
+        
 	// when the client emits 'adduser', this listens and executes
 	socket.on('adduser', function(username){
 		// we store the username in the socket session for this client
