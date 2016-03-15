@@ -59,6 +59,12 @@ io.sockets.on('connection', function (socket) {
 		socket.broadcast.emit('updateTarget', socket.username, newPos);
 	});
         
+        socket.on('sendEndGame', function (newPos) {
+		// we tell the client to execute 'updatepos' with 2 parameters
+		//console.log("recu sendTarget");
+		socket.broadcast.emit('updateEndGame', socket.username, newPos);
+	});
+        
         socket.on('sendHealth', function (newPos) {
 		// we tell the client to execute 'updatepos' with 2 parameters
 		//console.log("recu sendTarget");

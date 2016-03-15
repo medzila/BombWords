@@ -32,11 +32,13 @@ and open the template in the editor.
         	<canvas id="canvasEnemy" width="400" height="400" tabindex="1" class="backgroundCityEnemy"></canvas>
         	</div>
         </div>
-
+        <canvas id="canvasWin" width="1100" height="400" tabindex="1"></canvas>
+        <canvas id="canvasLoose" width="1100" height="400" tabindex="1"></canvas>
         <script type="text/javascript" src="game.js"></script>
         
         
 <script src="/socket.io/socket.io.js"></script>
+
 <script>
 	var username = prompt("What's your name?");
 	var conversation, data, datasend, users;
@@ -71,6 +73,10 @@ and open the template in the editor.
         
         socket.on('updateHealth', function (username, newPos) {
 		updateHealth(newPos);
+	});
+        
+        socket.on('updateEndGame', function (username, newPos) {
+		updateEndGame(newPos);
 	});
         
 

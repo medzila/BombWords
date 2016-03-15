@@ -65,6 +65,9 @@ var backgroundAudio, bulletSound, launchSound, explosionSound;
 var player1;
 var playerEnemy;
 
+var endGame;
+var enemyLoose;
+
 window.onload = function(){
     init();
 };
@@ -85,7 +88,18 @@ function init(){
     wW = canvasW.width;
     hW = canvasW.height;
     ctxW = canvasW.getContext('2d');
-    // load the spritesheet
+    
+    canvasWin = document.getElementById("canvasWin");
+    wWin = canvasWin.width;
+    hWin = canvasWin.height;
+    ctxWin = canvasWin.getContext('2d');
+    canvasWin.style.display="none";
+    
+    canvasLoose = document.getElementById("canvasLoose");
+    wLoose = canvasLoose.width;
+    hLoose = canvasLoose.height;
+    ctxLoose = canvasLoose.getContext('2d');
+    canvasLoose.style.display="none";
     
     loadSprites();
     
@@ -133,6 +147,8 @@ function init(){
     player1 = new player(100);
     playerEnemy = new player(100);
     
+    endGame = true;
+    
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
@@ -142,23 +158,44 @@ function init(){
 
 
 function mainloop(){
-    ctx.clearRect(0, 0, w, h);
-    ctxE.clearRect(0, 0, wE, hE);
-    ctxW.clearRect(0, 0, wW, hW);
-    drawCanvasWords();
-    updateMissilesToEnemy();
+    if(endGame){
+        ctx.clearRect(0, 0, w, h);
+        ctxE.clearRect(0, 0, wE, hE);
+        ctxW.clearRect(0, 0, wW, hW);
+        drawCanvasWords();
+        updateMissilesToEnemy();
 
-    updateBullets();
+        updateBullets();
     
-    updateExplosion(ctx);
+        updateExplosion(ctx);
         
-    drawAllPlayers();
+        drawAllPlayers();
     
-    drawVueEnemy();
+        drawVueEnemy();
 
-    player1.draw(ctx);
-    
+        player1.draw(ctx);
+    }else{
+        document.getElementById("gameDiv").style.display="none";
+        
+        if(player1.life > 0){
+            canvasWin.style.display="block";
+            ctxWin.font="30px Verdana";
+            ctxWin.fillStyle='blue';
+            ctxWin.fillText("Bravo ! Vous avez gagné :)" ,wWin/2,hWin/2);
+        }else{
+            canvasLoose.style.display="block";
+            ctxLoose.font="30px Verdana";
+            ctxLoose.fillStyle='red';
+            ctxLoose.fillText("Dommage ! Vous avez perdu :(" ,wLoose/2,hLoose/2);
+        }
+    }
     requestAnimationFrame(mainloop);
+}
+
+function updateEndGame(newPos){
+    endGame = newPos.end;
+    enemyLoose = newPos.username;
+    console.log(enemyLoose+" "+endGame);
 }
 
 ////////////////////////////////////////////
@@ -417,6 +454,11 @@ function player(health) {
     this.life = health;
     this.looseLife = function() {
         this.life = this.life <= 0 ? 0 : this.life - 20;
+        if(this.life <= 0){
+            endGame = false;
+            var toSendEndGame = {'user':this.playerName.toString(), 'end':false}
+            socket.emit('sendEndGame', toSendEndGame);
+        }
     };
     this.draw = function(ctx) {
         ctx.save();
