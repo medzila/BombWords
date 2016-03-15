@@ -70,6 +70,10 @@ and open the template in the editor.
 		updateTarget(newPos);
 	});
         
+        socket.on('updateHealth', function (username, newPos) {
+		updateHealth(newPos);
+	});
+        
 
 	// listener, whenever the server emits 'updateusers', this updates the username list
 	socket.on('updateusers', function(listOfUsers) {

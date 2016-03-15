@@ -61,7 +61,7 @@ var sound;
 var backgroundAudio, bulletSound, launchSound, explosionSound;
 
 var player1;
-
+var playerEnemy;
 
 window.onload = function(){
     init();
@@ -98,7 +98,7 @@ function init(){
 
     cannon_img = new Image();
     cannon_img.src = cannon_URL;
-
+    
     cannonball_img = new Image();
     cannonball_img.src = cannonball_URL;
 
@@ -125,8 +125,9 @@ function init(){
     explosionSound = new SoundPool(20);
     explosionSound.init("explosion");
     
-    player1 = new player();
-
+    player1 = new player(100);
+    playerEnemy = new player(100);
+    
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
@@ -406,9 +407,9 @@ function drawAllPlayers() {
 ////////////////////////////////////////////
 //              Constructeur             //
 ///////////////////////////////////////////
-function player() {
+function player(health) {
     this.playerName = username;
-    this.life = 100;
+    this.life = health;
     this.looseLife = function() {
         this.life = this.life <= 0 ? 0 : this.life - 20;
     };
@@ -457,6 +458,8 @@ function missile(posX,word,loose) {
 	if(this.y >= h){
         if(player1.playerName === username && loose){
                 player1.looseLife();
+                var toSendHealth = {'user':username, 'health':player1.life}
+                socket.emit('sendHealth', toSendHealth);
             }
 	    this.isDestroyed = true;
 	}
@@ -589,6 +592,7 @@ var missileVue = [];
 var explosionEnemy =[];
 var theLetter = null;
 var theTarget = null;
+var healthEnemy = 100;
 
 function updateEnemyVue(newPos){
     missileVueEnemy.push(new missileToEnemy(newPos.posX,newPos.word,false));
@@ -604,6 +608,10 @@ function updateTarget(newPos){
             theTarget.color = 'red';
         }
     }
+}
+
+function updateHealth(newPos){
+    healthEnemy = newPos.health;
 }
 
 function drawVueEnemy(){
@@ -670,4 +678,6 @@ function drawVueEnemy(){
 	    bulletVueEnemy[i].draw(ctxE);
 	}
     }
+    playerEnemy.life = healthEnemy;
+    playerEnemy.draw(ctxE);
 }
