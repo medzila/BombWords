@@ -56,7 +56,7 @@ var missilesExplosion = [];
 var wordsToWrite = [];
 
 var sound;
-var backgroundAudio;
+var backgroundAudio, bulletSound, launchSound, explosionSound;
 
 window.onload = function(){
     init();
@@ -107,6 +107,15 @@ function init(){
     backgroundAudio.volume = .25;
     backgroundAudio.load();
     backgroundAudio.play();
+
+    bulletSound = new SoundPool(15);
+    bulletSound.init("bullet");
+
+    launchSound = new SoundPool(20);
+    launchSound.init("launch");
+
+    explosionSound = new SoundPool(20);
+    explosionSound.init("explosion");
 
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
@@ -228,6 +237,7 @@ function writeOnCanvasW(evt){
 ///////////////////////////////////////////
 
 function launchMissile(word){
+    launchSound.get();
     missileSend = new missileToEnemy(Math.random()*w,word,true);
     missilesToEnemy.push(missileSend);
 }
@@ -245,6 +255,7 @@ function checkFirstLetterOfCurrentTarget(letter){
                 var toSendTarget = {'user':username, 'word':currentTarget.motMissile,'letter':letter}
                 socket.emit('sendTarget', toSendTarget);
 		bullets.push(new bullet(currentTarget));
+        bulletSound.get();
 		currentTarget.remainingLetters = currLett.substring(1);
 		if(currentTarget.remainingLetters === ""){
 			//currentTarget.isDestroyed = true;
@@ -371,7 +382,7 @@ function drawAllPlayers() {
                     //console.log("pas sol "+posY);
                 }
                 missilesExplosion.push(explo); // Ajout d'un objet sprite pour l'explosion du missile.
-                sound.play();
+                explosionSound.get();
             }else{
                 m.draw(ctx);
                 m.move();

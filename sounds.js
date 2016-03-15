@@ -22,9 +22,25 @@ function SoundPool(maxSize) {
 		else if (object == "explosion") {
 			for (var i = 0; i < size; i++) {
 				var explosion = new Audio("sounds/explosion.wav");
-				explosion.volume = .1;
+				explosion.volume = .2;
 				explosion.load();
 				pool[i] = explosion;
+			}
+		}
+		else if (object == "launch") {
+			for (var i = 0; i < size; i++) {
+				var launch = new Audio("sounds/launch.wav");
+				launch.volume = .15;
+				launch.load();
+				pool[i] = launch;
+			}
+		}
+		else if (object == "bullet") {
+			for (var i = 0; i < size; i++) {
+				var bullet = new Audio("sounds/bullet.wav");
+				bullet.volume = .15;
+				bullet.load();
+				pool[i] = bullet;
 			}
 		}
 	};
