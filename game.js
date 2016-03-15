@@ -492,18 +492,18 @@ function missile(posX,word,loose) {
 }
 
 function missileToEnemy(posX,word,bool){
-    this.x=posX;
+    this.motMissile = word;
+    this.wordWidth = 8*this.motMissile.length;
+    this.x=posX + this.wordwidth > w ? posX - this.wordWidth : posX;
     this.y=h; //h
     this.color='orange';
     this.speed=2;
     //this.rand = Math.floor(Math.random() * 4);
-    this.motMissile = word;
     this.remainingLetters = this.motMissile;
     this.isDestroyed = false;
     this.sprite = new Sprite();
     this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
     this.sprite.setNbImagesPerSecond(60);
-    this.wordWidth = 8*this.motMissile.length;
     this.move = function(){
         this.y-=this.speed;
     if(this.y <= 0){
