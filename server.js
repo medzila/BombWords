@@ -84,7 +84,8 @@ io.sockets.on('connection', function (socket) {
                 var player = [];
 		listOfPlayers[username] = player;
 		io.sockets.emit('updatePlayers',listOfPlayers);
-                console.log(usernames);
+                console.log(Object.keys(usernames).length);
+            
 	});
 
 	// when the user disconnects.. perform this

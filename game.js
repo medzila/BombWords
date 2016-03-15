@@ -37,6 +37,8 @@ var missilesExplosion = [];
 
 var wordsToWrite = [];
 
+var sound;
+
 window.onload = function(){
     init();
 };
@@ -64,6 +66,8 @@ function init(){
     selectWordsToWrite(wordsToWrite);
     writeWordsCanvas();
     
+    sound = document.querySelector('#audioPlayer');
+    
     requestAnimationFrame(mainloop);
     canvas.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
@@ -81,8 +85,8 @@ function mainloop(){
         
     drawAllPlayers();
     
-    drawVueEnemy()
-    
+    drawVueEnemy();
+        
     requestAnimationFrame(mainloop);
 }
 
@@ -293,6 +297,7 @@ function drawAllPlayers() {
                 posY = m.y;
                 allPlayers[name].splice(i--, 1);
                 missilesExplosion.push(new explosions(posX,posY-50)); // Ajout d'un objet sprite pour l'explosion du missile.
+                sound.play();
             }else{
                 m.draw(ctx);
                 m.move();
@@ -455,6 +460,7 @@ function updateTarget(newPos){
         var m = missileVue[i];
         if(m.motMissile === tar){
             theTarget = m;
+            theTarget.color = 'red';
         }
     }
 }
