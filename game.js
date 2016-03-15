@@ -442,6 +442,7 @@ function missile(posX,word) {
     this.sprite = new Sprite();
     this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
     this.sprite.setNbImagesPerSecond(60);
+    this.wordWidth = 8*this.motMissile.length;
     this.move = function(){
         this.y+=this.speed;
 	if(this.y >= h){
@@ -454,12 +455,12 @@ function missile(posX,word) {
 	    ctx.translate(this.x, this.y);
         //console.log("la");
         ctx.fillStyle = this.color;
-        ctx.fillRect(0,0,12*this.motMissile.length,20);
+        ctx.fillRect(0,0,this.wordWidth,20);
         ctx.font = "15px Calibri,Geneva,Arial";
         ctx.fillStyle = "white";
         ctx.fillText(this.remainingLetters,0,15);
 	    ctx.rotate(180*Math.PI/180);
-	    this.sprite.draw(ctx, -50, 0);
+	    this.sprite.draw(ctx,  - this.wordWidth/2 - 16 , 0);
         ctx.restore();
     };
 }
@@ -476,6 +477,7 @@ function missileToEnemy(posX,word,bool){
     this.sprite = new Sprite();
     this.sprite.extractSprites(spritesheet_missile, NB_POSTURES_MISSILES, NB_FRAMES_PER_POSTURE_MISSILES, SPRITE_MISSILES_WIDTH, SPRITE_MISSILES_HEIGHT);
     this.sprite.setNbImagesPerSecond(60);
+    this.wordWidth = 8*this.motMissile.length;
     this.move = function(){
         this.y-=this.speed;
     if(this.y <= 0){
@@ -492,11 +494,11 @@ function missileToEnemy(posX,word,bool){
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.fillStyle = this.color;
-        ctx.fillRect(0,0,12*this.motMissile.length,20);
+        ctx.fillRect(0,0,this.wordWidth,20);
         ctx.font = "15px Calibri,Geneva,Arial";
         ctx.fillStyle = "white";
         ctx.fillText(this.remainingLetters,0,15);
-        this.sprite.draw(ctx,25,-125)
+        this.sprite.draw(ctx,this.wordWidth/2 - 16,-130)
         ctx.restore();
     };
     if(bool){
@@ -513,7 +515,7 @@ function bullet(target){
     this.speed = 5;
     this.dead = false;
     this.move = function(){
-	var dist = distanceBetweenTwoPoints(this.x, this.y, this.target.x, this.target.y);
+	var dist = distanceBetweenTwoPoints(this.x , this.y, this.target.x + this.target.wordWidth / 2, this.target.y);
 	if(dist <= 10){
 	    this.dead = true;
 		this.target.alreadyHit --;
@@ -521,13 +523,11 @@ function bullet(target){
 			this.target.isDestroyed = true;
 		}
 	}else{
-	    var angle = angleBetweenTwoPoints(this.target.x, this.target.y, this.x, this.y);
+	    var angle = angleBetweenTwoPoints(this.target.x + this.target.wordWidth / 2, this.target.y, this.x, this.y);
 	    
 	    this.x += Math.cos(angle) * this.speed ;
 	    this.y += Math.sin(angle) * this.speed;
 	    
-	    //console.log("Apres:"+this.x+";"+this.y);
-	    //console.log("==========================");
 	}
     };
     this.draw = function(ctx){
