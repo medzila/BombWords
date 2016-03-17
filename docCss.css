@@ -7,11 +7,17 @@ and open the template in the editor.
     Created on : 1 mars 2016, 18:32:50
     Author     : Momo
 */
-
+body {
+    background : url("image/background.png");
+    background-size: 100% 100%;
+}
 canvas {
-    border: 1px solid black;
+    border: 2px solid white;
 }
 
+canvas:focus{
+    border : 3px solid red;
+}
 .backgroundCity{
     background: url("./image/city_background.jpg");
     background-size: 100% 100%;
@@ -25,4 +31,24 @@ canvas {
     border: 3px solid red;
 }
 
+#canvasWords{
+    background-color: white;
+}
 
+h2{
+    color: white;
+}
+
+div{
+    color: white;
+}
+
+.canvasEnd{
+    background-color: white;
+    
+}
+
+.canvasEnd:focus{
+    background-color: greenyellow;
+    
+}

@@ -59,7 +59,6 @@ var missilesExplosion = [];
 
 var wordsToWrite = [];
 
-var sound;
 var backgroundAudio, bulletSound, launchSound, explosionSound;
 
 var player1;
@@ -129,9 +128,7 @@ function init(){
 
     selectWordsToWrite(wordsToWrite);
     writeWordsCanvas();
-    
-    sound = document.querySelector('#audioPlayer');
-    
+        
     backgroundAudio = new Audio("sounds/backgroundAudio.wav");
     backgroundAudio.loop = true;
     backgroundAudio.volume = .25;
@@ -154,7 +151,7 @@ function init(){
     restartSend = false;
     
     requestAnimationFrame(mainloop);
-    canvas.addEventListener('keydown',toucheAppuyee,false);
+    document.addEventListener('keydown',toucheAppuyee,false);
     canvas.addEventListener('keyup',toucheRelachee,false);
     canvas.addEventListener("mousedown", clickFunction);
     canvasW.addEventListener('keyup', writeOnCanvasW, false);
@@ -162,22 +159,6 @@ function init(){
     canvasWin.addEventListener('click',restartWinner);
     canvasLoose.addEventListener('click',restartLooser);
 };
-
-function restartWinner(){
-    var toSendRes = {'user':username, 'restart':true}
-    socket.emit('sendRestart', toSendRes);
-    restartSend = true;
-}
-
-function restartLooser(){
-    var toSendRes = {'user':username, 'restart':true}
-    socket.emit('sendRestart', toSendRes);
-    restartSend = true;
-}
-
-function updateRestart(newPos){
-    restart = newPos.restart;
-}
 
 function mainloop(){
     if(endGame){
@@ -197,18 +178,21 @@ function mainloop(){
 
         player1.draw(ctx);
     }else{
-        document.getElementById("gameDiv").style.display="none";
+        document.getElementById("gameDiv").style.display="none";      
         
         if(player1.life > 0){
             canvasWin.style.display="block";
             ctxWin.font="30px Verdana";
             ctxWin.fillStyle='blue';
-            ctxWin.fillText("Bravo ! Vous avez gagné :)" ,wWin/2,hWin/2);
+            ctxWin.fillText("Bravo ! Vous avez gagné :)" ,wWin/2-180,hWin/2);
+            ctxWin.fillText("Cliquez pour recommencer en attendant l'adversaire ..." ,(wWin/2)-330,(hWin/2)+50);
+            
         }else{
             canvasLoose.style.display="block";
             ctxLoose.font="30px Verdana";
             ctxLoose.fillStyle='red';
-            ctxLoose.fillText("Dommage ! Vous avez perdu :(" ,wLoose/2,hLoose/2);
+            ctxLoose.fillText("Dommage ! Vous avez perdu :(" ,wLoose/2-180,hLoose/2);
+            ctxLoose.fillText("Cliquez pour recommencer en attendant l'adversaire ..." ,(wLoose/2)-330,(hLoose/2)+50);
         }
         if(restart && restartSend){
             restartFunction();
@@ -217,15 +201,13 @@ function mainloop(){
     requestAnimationFrame(mainloop);
 }
 
-function updateEndGame(newPos){
-    endGame = newPos.end;
-    enemyLoose = newPos.username;
-    console.log(enemyLoose+" "+endGame);
-}
-
 ////////////////////////////////////////////
 //              Evenements               //
 ///////////////////////////////////////////
+
+/**
+ * Affiche les mots à taper dans le canvas du jeu
+ */
 function drawCanvasWords(){
     ctxW.save();
 
@@ -238,6 +220,9 @@ function drawCanvasWords(){
 
     ctxW.restore();
 }
+/*
+ * Ecris les mots à taper dans le canvas du jeu
+ */
 function writeWordsCanvas(){
     ctxW.font = "15px Calibri,Geneva,Arial";
     pos = 10;
@@ -253,19 +238,19 @@ function writeWordsCanvas(){
     }
 }
 
+// Empeche d'aller a la page precedente avec la touche retour
 function toucheAppuyee(evt){
-    //console.log("touche appuyee code=" + evt.keyCode);
-    //ctxT.font = "68px Calibri,Geneva,Arial";
-    //ctxT.fillStyle = "black";
-    if(evt.keyCode === 8 || evt.keyCode === 46){ // Empeche d'aller a la page precedente avec la touche retour
+    if(evt.keyCode === 8 || evt.keyCode === 46){ 
 	evt.preventDefault();
     };
     
 }
 
+/*
+ * Recherche la cible en fonction de la premiere lettre tapee
+ */
 function toucheRelachee(evt){
     car = String.fromCharCode(evt.keyCode);
-    //console.log(car);
     if(currentTarget === null){
 	findMissileToDestroy(car);
 	checkFirstLetterOfCurrentTarget(car);
@@ -304,10 +289,7 @@ function writeOnCanvasW(evt){
             currentWord = null;
             currentLetters = null;
         }
-        //writeWordsCanvas();
     }
-
-    //console.log(car+", "+currentLetters);
 }
 
 ////////////////////////////////////////////
@@ -359,19 +341,7 @@ function findMissileToDestroy(letter){
 //          Fonction de mise à jour         //
 /////////////////////////////////////////////
 
-function updateMToEnemy(){
-    for(i = 0; i<missilesToEnemy.length; i++){
-        var m = missilesToEnemy[i];
-
-        if(m.isDestroyed){
-            missilesToEnemy.splice(i--, 1);
-        }else{
-            m.draw(ctx);
-            m.move();
-        }
-    }
-}
-
+//Gestion des boulets de canon lancer par le joueur
 function updateBullets(){
     for(i=0; i < bullets.length; i++){
         if(bullets[i].dead){
@@ -384,25 +354,7 @@ function updateBullets(){
     }
 }
 
-/*function updateMissiles(){
-    for(i = 0; i< missiles.length; i++){
-	var m = missiles[i];
-        if(m.isDestroyed){
-	    if(m === currentTarget){
-		currentTarget = null;
-	    }
-            posX = m.x;
-            posY = m.y;
-            missiles.splice(i--, 1);
-            missilesExplosion.push(new explosions(posX,posY - 100)); // Ajout d'un objet sprite pour l'explosion du missile.
-	}
-        else{
-	    m.draw(ctx);
-	    m.move();
-	}
-    }
-}*/
-
+// Gere les missiles ennemies lancer par le joueur
 function updateMissilesToEnemy(){
     for(i = 0; i<missilesToEnemy.length; i++){
         var m = missilesToEnemy[i];
@@ -415,6 +367,7 @@ function updateMissilesToEnemy(){
         }
     }
 }
+
 /**
  * Dessine l'explosion d'un missile
  */
@@ -428,6 +381,9 @@ function updateExplosion(){
     }
 }
 
+/**
+ * gestion du missile envoyer par l'adversaire
+ */
 function updatePlayerNewPos(newPos){
     allPlayers[username].push(new missile(newPos.posX,newPos.word,true));
 }
@@ -435,10 +391,14 @@ function updatePlayerNewPos(newPos){
 function updatePlayers(listOfPlayers) {
   allPlayers = listOfPlayers;
 }
+
 ////////////////////////////////////////////////////////
 //      Affichage missiles ennemis cote adversaire    //
 ////////////////////////////////////////////////////////
 
+/**
+ * Affiche les missiles ennemi à detruire par le joueur
+ */
 function drawAllPlayers() {
   for(var name in allPlayers) {
       for(i = 0; i<allPlayers[name].length; i++){
@@ -454,10 +414,8 @@ function drawAllPlayers() {
                 var explo;
                 if(posY >= h){
                     explo = new explosions(1,posX, posY-148);
-                    //console.log("sol "+posY);
                 }else{
                     explo = new explosions(0,posX, posY-50);
-                    //console.log("pas sol "+posY);
                 }
                 missilesExplosion.push(explo); // Ajout d'un objet sprite pour l'explosion du missile.
                 explosionSound.get();
@@ -474,6 +432,7 @@ function drawAllPlayers() {
 ////////////////////////////////////////////
 //              Constructeur             //
 ///////////////////////////////////////////
+
 function player(health) {
     this.playerName = username;
     this.life = health;
@@ -501,9 +460,7 @@ function player(health) {
         ctx.fillStyle = "green";
         ctx.fillRect(posX, posY+2, long*(this.life/100) -2, larg-4);
 
-        //ctx.rotate(90 * Math.PI/180);
         ctx.drawImage(cannon_img, w/2 -10, h-46);
-        //ctx.rotate(-90 * Math.PI/180);
         ctx.drawImage(cannon_socle_img, w/2 - 13, h - 18);
 
         ctx.drawImage(mute_img, 0, 0, mute_img.width, mute_img.height, 0, 0, 20, 20);
@@ -511,11 +468,14 @@ function player(health) {
     };
 }
 
+/*
+ * Missile envoyer par l'ennemi
+ */
 function missile(posX,word,loose) {
     this.x=posX;
     this.y=0;
     this.color='blue';
-    this.speed=1;
+    this.speed=1.3;
     this.rand = Math.floor(Math.random() * 4);
     this.motMissile = word;
     this.remainingLetters = this.motMissile;
@@ -538,8 +498,7 @@ function missile(posX,word,loose) {
     };
     this.draw = function(ctx){
         ctx.save();
-	    ctx.translate(this.x, this.y);
-        //console.log("la");
+	ctx.translate(this.x, this.y);
         ctx.fillStyle = this.color;
         ctx.fillRect(0,0,this.wordWidth,20);
         ctx.font = "15px Calibri,Geneva,Arial";
@@ -558,14 +517,16 @@ function missile(posX,word,loose) {
     };
 }
 
+/*
+ * Missile envoyer par le joueur
+ */
 function missileToEnemy(posX,word,bool){
     this.motMissile = word;
     this.wordWidth = 8*this.motMissile.length;
     this.x=posX + this.wordwidth > w ? posX - this.wordWidth : posX;
     this.y=h; //h
     this.color='orange';
-    this.speed=1;
-    //this.rand = Math.floor(Math.random() * 4);
+    this.speed=1.3;
     this.remainingLetters = this.motMissile;
     this.isDestroyed = false;
     this.sprite = new Sprite();
@@ -600,6 +561,9 @@ function missileToEnemy(posX,word,bool){
     }
 }
 
+/*
+ * Boulet envoyer par le joueur pour detruire un missile adversaire
+ */
 function bullet(target){
     this.x = w/2;
     this.y = h;
@@ -633,8 +597,6 @@ function bullet(target){
 
 /**
  * Objet sprite permettant le dessin de l'explosion.
- * @param {type} x positon x de l'explosion
- * @param {type} y position y de l'explosion
  */
 function explosions(isGround,x,y) {
     this.explode = new Sprite();
@@ -660,11 +622,10 @@ function explosions(isGround,x,y) {
     this.posExplodeY=y;
 }
 
+////////////////////////////////////////////
+//              Vue Ennemie              //
+///////////////////////////////////////////
 
-
-//////////////////////////////////////////////////
-
-//Enemy Vue
 var missileVueEnemy = [];
 var bulletVueEnemy = [];
 var missileVue = [];
@@ -673,10 +634,18 @@ var theLetter = null;
 var theTarget = null;
 var healthEnemy = 100;
 
+/*
+ * Gestion des missiles envoyer par le joueur adverse
+ * Apparait dans la vue ennemi
+ */
 function updateEnemyVue(newPos){
     missileVueEnemy.push(new missileToEnemy(newPos.posX,newPos.word,false));
 }
 
+/*
+ * Gestion dela cible du joueur adverse
+ * Apparait dans la vue ennemi
+ */
 function updateTarget(newPos){
     theLetter = newPos.letter;
     var tar = newPos.word;
@@ -689,10 +658,16 @@ function updateTarget(newPos){
     }
 }
 
+/*
+ * Mise a jour vie de l'adversaire
+ */
 function updateHealth(newPos){
     healthEnemy = newPos.health;
 }
 
+/*
+ * Representation de la vue adversaire dans le canvas du joueur
+ */
 function drawVueEnemy(){
     for(var i = 0; i<missileVueEnemy.length; i++){
         var m = missileVueEnemy[i];
@@ -717,10 +692,8 @@ function drawVueEnemy(){
                 var explo;
                 if(posY >= h){
                     explo = new explosions(1,posX, posY-148);
-                    //console.log("sol "+posY);
                 }else{
                     explo = new explosions(0,posX, posY-50);
-                    //console.log("pas sol "+posY);
                 }
                 explosionEnemy.push(explo); // Ajout d'un objet sprite pour l'explosion du missile.
             }else{
@@ -759,6 +732,32 @@ function drawVueEnemy(){
     }
     playerEnemy.life = healthEnemy;
     playerEnemy.draw(ctxE);
+}
+
+////////////////////////////////////////////
+//          Gestion Fin De Partie         //
+///////////////////////////////////////////
+
+
+function updateEndGame(newPos){
+    endGame = newPos.end;
+    enemyLoose = newPos.username;
+}
+
+function restartWinner(){
+    var toSendRes = {'user':username, 'restart':true}
+    socket.emit('sendRestart', toSendRes);
+    restartSend = true;
+}
+
+function restartLooser(){
+    var toSendRes = {'user':username, 'restart':true}
+    socket.emit('sendRestart', toSendRes);
+    restartSend = true;
+}
+
+function updateRestart(newPos){
+    restart = newPos.restart;
 }
 
 function restartFunction(){

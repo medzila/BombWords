@@ -14,11 +14,8 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <link rel="stylesheet" type="text/css" href="docCss.css">	 
     </head>
-    <body background="image/bombFOnd.jpg">
-        <audio id="audioPlayer">
-            <source src="Explo.mp3">
-        </audio>
-        <div id="gameDiv">
+    <body>
+        <div id="gameDiv" align="center">
         	<div style="display:inline-block;">
         	<h2> Your city </h2>
         	<canvas id="canvasGame" width="400" height="400" tabindex="1" class="backgroundCity"></canvas>
@@ -29,11 +26,11 @@ and open the template in the editor.
         	</div>
         	<div style="display:inline-block;">
 			<h2> Enemy's city </h2>
-        	<canvas id="canvasEnemy" width="400" height="400" tabindex="1" class="backgroundCityEnemy"></canvas>
+        	<canvas id="canvasEnemy" width="400" height="400" class="backgroundCityEnemy"></canvas>
         	</div>
         </div>
-        <canvas id="canvasWin" width="1100" height="400" tabindex="1"></canvas>
-        <canvas id="canvasLoose" width="1100" height="400" tabindex="1"></canvas>
+        <canvas id="canvasWin" width="1100" height="400" tabindex="1" class="canvasEnd"></canvas>
+        <canvas id="canvasLoose" width="1100" height="400" tabindex="1" class="canvasEnd"></canvas>
         <script type="text/javascript" src="game.js"></script>
         
         

@@ -14,7 +14,7 @@ function SoundPool(maxSize) {
 			for (var i = 0; i < size; i++) {
 				// Initalize the sound
 				laser = new Audio("sounds/bullet.wav");
-				laser.volume = .12;
+				laser.volume = .22;
 				laser.load();
 				pool[i] = laser;
 			}
@@ -22,7 +22,7 @@ function SoundPool(maxSize) {
 		else if (object == "explosion") {
 			for (var i = 0; i < size; i++) {
 				var explosion = new Audio("sounds/explosion.wav");
-				explosion.volume = .2;
+				explosion.volume = .3;
 				explosion.load();
 				pool[i] = explosion;
 			}
@@ -30,7 +30,7 @@ function SoundPool(maxSize) {
 		else if (object == "launch") {
 			for (var i = 0; i < size; i++) {
 				var launch = new Audio("sounds/launch.wav");
-				launch.volume = .15;
+				launch.volume = .35;
 				launch.load();
 				pool[i] = launch;
 			}
@@ -38,7 +38,7 @@ function SoundPool(maxSize) {
 		else if (object == "bullet") {
 			for (var i = 0; i < size; i++) {
 				var bullet = new Audio("sounds/bullet.wav");
-				bullet.volume = .15;
+				bullet.volume = .25;
 				bullet.load();
 				pool[i] = bullet;
 			}
